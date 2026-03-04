@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2 } from "lucide-react";
+import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
+import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
 import PosLayout from "@/components/pdv/PosLayout";
 import AdminAuthModal from "@/components/pdv/AdminAuthModal";
 
@@ -16,16 +17,19 @@ interface Employee {
 const AdminPage = () => {
   const navigate = useNavigate();
   const { adminLogs, customers, updateCustomerLimit } = useCustomers();
+  const store = useStore();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
   const [pendingSection, setPendingSection] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Store data
-  const [storeName, setStoreName] = useState("Empório Orgânico");
-  const [storeAddress, setStoreAddress] = useState("Rua das Flores, 123 - Centro");
-  const [storeHours, setStoreHours] = useState("08:00 - 22:00");
-  const [storePhone, setStorePhone] = useState("(11) 3333-4444");
+  // Local form state for store settings
+  const [storeName, setStoreName] = useState(store.storeName);
+  const [storeAddress, setStoreAddress] = useState(store.storeAddress);
+  const [storeHours, setStoreHours] = useState(store.storeHours);
+  const [storePhone, setStorePhone] = useState(store.storePhone);
+  const [ownerName, setOwnerName] = useState(store.ownerName);
+  const [pixKeyInput, setPixKeyInput] = useState(store.pixKey);
 
   // Employees
   const [employees, setEmployees] = useState<Employee[]>([
@@ -157,7 +161,7 @@ const AdminPage = () => {
       {/* Dados da Loja Modal */}
       {activeSection === "loja" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setActiveSection(null)}>
-          <div className="bg-card w-full max-w-md rounded-2xl p-6 shadow-elevated animate-fade-up mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card w-full max-w-md rounded-2xl p-6 shadow-elevated animate-fade-up mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display text-lg font-bold text-foreground">Dados da Loja</h3>
               <button onClick={() => setActiveSection(null)} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
@@ -169,6 +173,11 @@ const AdminPage = () => {
                 <label className="text-xs font-medium text-muted-foreground font-body">Nome da Loja</label>
                 <input value={storeName} onChange={(e) => setStoreName(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 mt-1" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground font-body">Nome do Proprietário</label>
+                <input value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Nome completo do dono"
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 mt-1" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground font-body">Endereço</label>
@@ -185,8 +194,46 @@ const AdminPage = () => {
                 <input value={storePhone} onChange={(e) => setStorePhone(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 mt-1" />
               </div>
+
+              {/* Pix Section */}
+              <div className="border-t border-border pt-3 mt-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <QrCode className="w-4 h-4 text-primary" />
+                  <p className="text-sm font-semibold text-foreground font-body">Chave Pix</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground font-body">Chave Pix (CPF, CNPJ, E-mail, Telefone ou Aleatória)</label>
+                  <input
+                    value={pixKeyInput}
+                    onChange={(e) => setPixKeyInput(e.target.value)}
+                    placeholder="Ex: 12345678900, email@exemplo.com, +5511999..."
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 mt-1"
+                  />
+                  {pixKeyInput.trim() && (() => {
+                    // Detect type inline for preview
+                    const clean = pixKeyInput.replace(/[\s.\-/()]/g, "");
+                    let detected = "";
+                    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pixKeyInput.trim())) detected = "E-mail";
+                    else if (/^\d{11}$/.test(clean)) detected = "CPF";
+                    else if (/^\d{14}$/.test(clean)) detected = "CNPJ";
+                    else if (/^\+?\d{10,13}$/.test(clean)) detected = "Telefone";
+                    else detected = "Chave Aleatória";
+                    return (
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-body font-medium">
+                          Tipo detectado: {detected}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
-            <Button className="w-full rounded-xl" onClick={() => setActiveSection(null)}>Salvar Alterações</Button>
+            <Button className="w-full rounded-xl" onClick={() => {
+              store.updateStore({ storeName, storeAddress, storeHours, storePhone, ownerName });
+              store.setPixKey(pixKeyInput);
+              setActiveSection(null);
+            }}>Salvar Alterações</Button>
           </div>
         </div>
       )}
