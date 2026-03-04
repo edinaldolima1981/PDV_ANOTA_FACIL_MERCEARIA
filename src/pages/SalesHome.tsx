@@ -57,7 +57,7 @@ const SalesHome = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -80,7 +80,8 @@ const SalesHome = () => {
         {totalItems > 0 && (
           <button
             onClick={() => navigate("/cart")}
-            className="lg:hidden fixed bottom-20 md:bottom-6 right-4 h-14 bg-primary text-primary-foreground rounded-2xl shadow-elevated flex items-center gap-3 px-5 active:scale-[0.98] transition-all z-40 animate-fade-up"
+            className="lg:hidden fixed right-4 h-14 bg-primary text-primary-foreground rounded-2xl shadow-elevated flex items-center gap-3 px-5 active:scale-[0.98] transition-all z-40 animate-fade-up"
+            style={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <ShoppingCart className="w-5 h-5" />
             <span className="font-body font-semibold text-sm">{totalItems}</span>

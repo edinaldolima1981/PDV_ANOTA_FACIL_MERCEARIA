@@ -248,7 +248,7 @@ const CheckoutPage = () => {
       </main>
 
       {/* Finalize Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 pb-6 shadow-elevated z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-elevated z-40 safe-bottom" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
         <Button
           size="xl"
           className={`w-full rounded-2xl ${isAPrazo ? "bg-warning hover:bg-warning/90 text-foreground" : ""}`}
