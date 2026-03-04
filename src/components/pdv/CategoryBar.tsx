@@ -1,4 +1,4 @@
-import { CATEGORIES } from "@/data/products";
+import { useProducts } from "@/contexts/ProductContext";
 
 interface CategoryBarProps {
   selected: string;
@@ -6,9 +6,11 @@ interface CategoryBarProps {
 }
 
 const CategoryBar = ({ selected, onSelect }: CategoryBarProps) => {
+  const { categories } = useProducts();
+
   return (
     <div className="flex gap-2 overflow-x-auto scrollbar-none">
-      {CATEGORIES.map((cat) => (
+      {categories.map((cat) => (
         <button
           key={cat.id}
           onClick={() => onSelect(cat.id)}
@@ -18,6 +20,7 @@ const CategoryBar = ({ selected, onSelect }: CategoryBarProps) => {
               : "bg-card text-foreground border border-border hover:bg-secondary"
           }`}
         >
+          <span className="mr-1">{cat.icon}</span>
           {cat.label}
         </button>
       ))}

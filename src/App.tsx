@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { CustomerProvider } from "@/contexts/CustomerContext";
 import { StoreProvider } from "@/contexts/StoreContext";
+import { ProductProvider } from "@/contexts/ProductContext";
 import LoginPin from "./pages/LoginPin";
 import SalesHome from "./pages/SalesHome";
 import CartPage from "./pages/CartPage";
@@ -26,6 +27,7 @@ const App = () => (
       <CartProvider>
         <CustomerProvider>
           <StoreProvider>
+          <ProductProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -43,6 +45,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+          </ProductProvider>
           </StoreProvider>
         </CustomerProvider>
       </CartProvider>

@@ -2,7 +2,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  unit: "kg" | "un" | "L";
+  unit: string;
   category: string;
   image?: string;
   stock: number;

@@ -1,17 +1,12 @@
 import { useState } from "react";
 import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/data/products";
+import { useProducts, UNIT_SHORT, UNIT_LABELS, type ProductUnit } from "@/contexts/ProductContext";
 import type { Product } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import PosLayout from "@/components/pdv/PosLayout";
 import { toast } from "sonner";
 
 type StockFilter = "all" | "normal" | "low" | "out";
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  acougue: "🥩", frutas: "🍎", verduras: "🥬", laticinios: "🧀",
-  bebidas: "🥤", graos: "🌾", padaria: "🍞",
-};
 
 const getStockStatus = (stock: number): { label: string; color: string; bg: string } => {
   if (stock === 0) return { label: "Esgotado", color: "text-destructive", bg: "bg-destructive/10" };
@@ -20,7 +15,7 @@ const getStockStatus = (stock: number): { label: string; color: string; bg: stri
 };
 
 const StockPage = () => {
-  const [products, setProducts] = useState<Product[]>([...MOCK_PRODUCTS]);
+  const { products, categories, updateProduct, deleteProduct, addProduct } = useProducts();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StockFilter>("all");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -28,7 +23,17 @@ const StockPage = () => {
   const [editPrice, setEditPrice] = useState("");
   const [editName, setEditName] = useState("");
   const [editImage, setEditImage] = useState("");
+  const [editUnit, setEditUnit] = useState<string>("un");
+  const [editCategory, setEditCategory] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // New product state
+  const [newName, setNewName] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newStock, setNewStock] = useState("");
+  const [newUnit, setNewUnit] = useState<string>("un");
+  const [newCategory, setNewCategory] = useState("");
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -51,28 +56,45 @@ const StockPage = () => {
     setEditPrice(product.price.toFixed(2));
     setEditName(product.name);
     setEditImage(product.image || "");
+    setEditUnit(product.unit);
+    setEditCategory(product.category);
   };
 
   const handleSave = () => {
     if (!editingProduct) return;
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === editingProduct.id
-          ? { ...p, name: editName, price: parseFloat(editPrice) || p.price, stock: parseInt(editStock) || 0, image: editImage || undefined }
-          : p
-      )
-    );
-    toast.success("Produto atualizado com sucesso!");
+    updateProduct(editingProduct.id, {
+      name: editName,
+      price: parseFloat(editPrice) || editingProduct.price,
+      stock: parseInt(editStock) || 0,
+      image: editImage || undefined,
+      unit: editUnit,
+      category: editCategory,
+    });
+    toast.success("Produto atualizado!");
     setEditingProduct(null);
   };
 
   const handleDelete = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    deleteProduct(id);
     setDeleteConfirmId(null);
-    toast.success("Produto excluído com sucesso!");
+    toast.success("Produto excluído!");
   };
 
-  const handleImageUpload = () => {
+  const handleAddProduct = () => {
+    if (!newName.trim() || !newPrice.trim()) return;
+    addProduct({
+      name: newName.trim(),
+      price: parseFloat(newPrice) || 0,
+      stock: parseInt(newStock) || 0,
+      unit: newUnit,
+      category: newCategory || (categories[1]?.id || ""),
+    });
+    toast.success("Produto cadastrado!");
+    setNewName(""); setNewPrice(""); setNewStock(""); setNewUnit("un"); setNewCategory("");
+    setShowAddModal(false);
+  };
+
+  const handleImageUpload = (setter: (v: string) => void) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -80,26 +102,25 @@ const StockPage = () => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          setEditImage(reader.result as string);
-        };
+        reader.onloadend = () => setter(reader.result as string);
         reader.readAsDataURL(file);
       }
     };
     input.click();
   };
 
+  const categoryOptions = categories.filter((c) => c.id !== "todos");
+
   return (
     <PosLayout>
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
         <header className="bg-card border-b border-border px-5 py-4 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="font-display text-lg font-bold text-foreground">Estoque</h1>
               <p className="text-xs text-muted-foreground font-body">{products.length} produtos cadastrados</p>
             </div>
-            <Button size="sm" className="rounded-lg gap-1.5">
+            <Button size="sm" className="rounded-lg gap-1.5" onClick={() => setShowAddModal(true)}>
               <Plus className="w-4 h-4" />
               Novo Produto
             </Button>
@@ -123,20 +144,19 @@ const StockPage = () => {
           </div>
         </header>
 
-        {/* Product List */}
         <main className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5 space-y-2">
           {filtered.map((product) => {
             const status = getStockStatus(product.stock);
-            const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+            const unitLabel = UNIT_SHORT[product.unit as ProductUnit] || product.unit;
+            const cat = categories.find((c) => c.id === product.category);
 
             return (
               <div key={product.id} className="bg-card rounded-xl p-4 border border-border flex items-center gap-4 hover:shadow-soft transition-shadow">
-                {/* Product Image */}
                 <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {product.image ? (
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-xl">{CATEGORY_EMOJI[product.category] || "📦"}</span>
+                    <span className="text-xl">{cat?.icon || "📦"}</span>
                   )}
                 </div>
 
@@ -191,52 +211,130 @@ const StockPage = () => {
         </main>
       </div>
 
+      {/* Add Product Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setShowAddModal(false)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl p-6 shadow-elevated animate-fade-up mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-lg font-bold text-foreground">Novo Produto</h3>
+              <button onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="space-y-3 mb-5">
+              <div>
+                <label className="text-xs text-muted-foreground font-body mb-1 block">Nome</label>
+                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome do produto"
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Preço (R$)</label>
+                  <input type="number" step="0.01" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} placeholder="0,00"
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Estoque</label>
+                  <input type="number" value={newStock} onChange={(e) => setNewStock(e.target.value)} placeholder="0"
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Unidade</label>
+                  <select value={newUnit} onChange={(e) => setNewUnit(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    {Object.entries(UNIT_LABELS).map(([key, label]) => (
+                      <option key={key} value={key}>{label} ({UNIT_SHORT[key as ProductUnit]})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Categoria</label>
+                  <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    <option value="">Selecione...</option>
+                    {categoryOptions.map((c) => (
+                      <option key={c.id} value={c.id}>{c.icon} {c.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <Button className="w-full rounded-xl gap-1.5" onClick={handleAddProduct} disabled={!newName.trim() || !newPrice.trim()}>
+              <Plus className="w-4 h-4" /> Cadastrar Produto
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Edit Modal */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setEditingProduct(null)}>
-          <div className="bg-card w-full max-w-sm rounded-2xl p-6 shadow-elevated animate-fade-up mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card w-full max-w-sm rounded-2xl p-6 shadow-elevated animate-fade-up mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-display text-lg font-bold text-foreground mb-4">Editar Produto</h3>
 
-            {/* Image Upload */}
             <div className="mb-4">
-              <label className="text-xs text-muted-foreground font-body mb-1 block">Imagem do Produto</label>
+              <label className="text-xs text-muted-foreground font-body mb-1 block">Imagem</label>
               <div className="flex items-center gap-3">
                 <div className="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center overflow-hidden border border-border">
                   {editImage ? (
                     <img src={editImage} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-2xl">{CATEGORY_EMOJI[editingProduct.category] || "📦"}</span>
+                    <span className="text-2xl">{categories.find((c) => c.id === editCategory)?.icon || "📦"}</span>
                   )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Button variant="outline" size="sm" className="rounded-lg gap-1.5 text-xs" onClick={handleImageUpload}>
+                  <Button variant="outline" size="sm" className="rounded-lg gap-1.5 text-xs" onClick={() => handleImageUpload(setEditImage)}>
                     <ImagePlus className="w-3.5 h-3.5" />
-                    {editImage ? "Trocar Imagem" : "Adicionar Imagem"}
+                    {editImage ? "Trocar" : "Adicionar"}
                   </Button>
                   {editImage && (
                     <button onClick={() => setEditImage("")} className="text-xs text-destructive font-body hover:underline text-left">
-                      Remover imagem
+                      Remover
                     </button>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 mb-5">
               <div>
                 <label className="text-xs text-muted-foreground font-body mb-1 block">Nome</label>
                 <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
-                  className="w-full h-10 px-4 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground font-body mb-1 block">Preço (R$)</label>
-                <input type="number" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)}
-                  className="w-full h-10 px-4 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Preço (R$)</label>
+                  <input type="number" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Estoque</label>
+                  <input type="number" value={editStock} onChange={(e) => setEditStock(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground font-body mb-1 block">Estoque ({editingProduct.unit})</label>
-                <input type="number" value={editStock} onChange={(e) => setEditStock(e.target.value)}
-                  className="w-full h-10 px-4 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Unidade</label>
+                  <select value={editUnit} onChange={(e) => setEditUnit(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    {Object.entries(UNIT_LABELS).map(([key, label]) => (
+                      <option key={key} value={key}>{label} ({UNIT_SHORT[key as ProductUnit]})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground font-body mb-1 block">Categoria</label>
+                  <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    {categoryOptions.map((c) => (
+                      <option key={c.id} value={c.id}>{c.icon} {c.label}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
@@ -244,8 +342,7 @@ const StockPage = () => {
                 Cancelar
               </Button>
               <Button size="lg" className="flex-1 rounded-xl gap-1.5" onClick={handleSave}>
-                <Save className="w-4 h-4" />
-                Salvar
+                <Save className="w-4 h-4" /> Salvar
               </Button>
             </div>
           </div>
