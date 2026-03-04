@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { CustomerProvider } from "@/contexts/CustomerContext";
+import { StoreProvider } from "@/contexts/StoreContext";
 import LoginPin from "./pages/LoginPin";
 import SalesHome from "./pages/SalesHome";
 import CartPage from "./pages/CartPage";
@@ -24,23 +25,25 @@ const App = () => (
     <TooltipProvider>
       <CartProvider>
         <CustomerProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<LoginPin />} />
-              <Route path="/home" element={<SalesHome />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/receipt" element={<ReceiptPage />} />
-              <Route path="/stock" element={<StockPage />} />
-              <Route path="/fiado" element={<FiadoPage />} />
-              <Route path="/contas-receber" element={<ContasReceberPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <StoreProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<LoginPin />} />
+                <Route path="/home" element={<SalesHome />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/receipt" element={<ReceiptPage />} />
+                <Route path="/stock" element={<StockPage />} />
+                <Route path="/fiado" element={<FiadoPage />} />
+                <Route path="/contas-receber" element={<ContasReceberPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </StoreProvider>
         </CustomerProvider>
       </CartProvider>
     </TooltipProvider>

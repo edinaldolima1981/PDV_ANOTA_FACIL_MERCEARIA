@@ -1,20 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { Check, Printer, MessageCircle, ArrowLeft, Leaf, Copy } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { storeName, pixKey, pixKeyType, pixKeyFormatted } = useStore();
   const navigate = useNavigate();
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("pt-BR");
   const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const orderNumber = String(Math.floor(Math.random() * 9000) + 1000);
-  const PIX_KEY = "95193258300";
-  const PIX_NAME = "Empório Orgânico";
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
@@ -41,8 +41,9 @@ const ReceiptPage = () => {
           <div class="line"></div>
           <div class="row"><span class="bold">TOTAL:</span><span class="bold">${fmt(totalPrice)}</span></div>
           <div class="line"></div>
-          <div class="center bold" style="margin-top:8px">CHAVE PIX (CPF)</div>
-          <div class="center">${PIX_KEY.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}</div>
+          ${pixKey ? `<div class="center bold" style="margin-top:8px">CHAVE PIX (${PIX_TYPE_LABELS[pixKeyType]})</div>
+          <div class="center">${pixKeyFormatted}</div>` : ''}
+
           <div class="line"></div>
           <div class="center" style="margin-top:10px">Obrigado pela preferência!</div>
         </body></html>
@@ -67,7 +68,7 @@ const ReceiptPage = () => {
         `${dateStr} às ${timeStr}\n\n` +
         `${itemsList}\n\n` +
         `*TOTAL: ${fmt(totalPrice)}*\n\n` +
-        `💳 *Chave Pix (CPF):* ${PIX_KEY.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}\n\n` +
+        (pixKey ? `💳 *Chave Pix (${PIX_TYPE_LABELS[pixKeyType]}):* ${pixKeyFormatted}\n\n` : '') +
         `Obrigado pela preferência! 🙏`
       );
       window.open(`https://wa.me/?text=${msg}`, "_blank");
@@ -103,7 +104,7 @@ const ReceiptPage = () => {
           </div>
           <div>
             <p className="font-display text-sm font-bold text-primary-foreground">
-              Empório Orgânico
+              {storeName}
             </p>
             <p className="text-xs text-primary-foreground/70 font-body">
               {dateStr} às {timeStr}
@@ -142,28 +143,30 @@ const ReceiptPage = () => {
           </span>
         </div>
 
-        {/* QR Code placeholder */}
-        <div className="px-5 pb-5 flex flex-col items-center">
-          <QRCodeSVG
-            value={`00020126330014BR.GOV.BCB.PIX0111${PIX_KEY}5204000053039865404${totalPrice.toFixed(2)}5802BR5913${PIX_NAME}6009SAO PAULO62070503***6304`}
-            size={120}
-            level="M"
-            className="mb-3"
-          />
-          <p className="text-xs font-semibold text-foreground font-body mb-1">Pague via Pix</p>
-          <div className="flex items-center gap-2 bg-secondary rounded-lg px-3 py-1.5">
-            <p className="text-xs text-muted-foreground font-body font-mono">
-              {PIX_KEY.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
-            </p>
-            <button
-              onClick={() => { navigator.clipboard.writeText(PIX_KEY); toast.success("Chave Pix copiada!"); }}
-              className="text-primary hover:text-primary/80 transition-colors"
-            >
-              <Copy className="w-3.5 h-3.5" />
-            </button>
+        {/* QR Code Pix */}
+        {pixKey && (
+          <div className="px-5 pb-5 flex flex-col items-center">
+            <QRCodeSVG
+              value={`00020126330014BR.GOV.BCB.PIX0111${pixKey.replace(/[\s.\-/()]/g, "")}5204000053039865404${totalPrice.toFixed(2)}5802BR5913${storeName.slice(0, 25)}6009SAO PAULO62070503***6304`}
+              size={120}
+              level="M"
+              className="mb-3"
+            />
+            <p className="text-xs font-semibold text-foreground font-body mb-1">Pague via Pix</p>
+            <div className="flex items-center gap-2 bg-secondary rounded-lg px-3 py-1.5">
+              <p className="text-xs text-muted-foreground font-body font-mono">
+                {pixKeyFormatted}
+              </p>
+              <button
+                onClick={() => { navigator.clipboard.writeText(pixKey); toast.success("Chave Pix copiada!"); }}
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                <Copy className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <p className="text-[10px] text-muted-foreground font-body mt-1">{PIX_TYPE_LABELS[pixKeyType]}: Chave Pix</p>
           </div>
-          <p className="text-[10px] text-muted-foreground font-body mt-1">CPF: Chave Pix</p>
-        </div>
+        )}
       </div>
 
       {/* Actions */}
