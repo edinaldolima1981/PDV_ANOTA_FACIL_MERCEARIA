@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, UserCircle, DollarSign, AlertTriangle, Check, Clock, Filter } from "lucide-react";
+import { Search, UserCircle, DollarSign, Check, MessageCircle, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
 import PosLayout from "@/components/pdv/PosLayout";
+import { toast } from "sonner";
 
 type StatusFilter = "todos" | "pendente" | "pago" | "atrasado";
 
@@ -12,6 +13,7 @@ const ContasReceberPage = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [receivingId, setReceivingId] = useState<string | null>(null);
   const [receiveMethod, setReceiveMethod] = useState("dinheiro");
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
@@ -25,9 +27,54 @@ const ContasReceberPage = () => {
   const totalAtrasado = creditSales.filter((s) => s.status === "atrasado").reduce((sum, s) => sum + s.amount, 0);
   const totalRecebido = creditSales.filter((s) => s.status === "pago").reduce((sum, s) => sum + s.amount, 0);
 
-  const handleReceive = (saleId: string) => {
+  const handleConfirmReceive = (saleId: string) => {
     receiveSalePayment(saleId, receiveMethod);
+    setConfirmingId(saleId);
     setReceivingId(null);
+    toast.success("Pagamento recebido com sucesso!");
+  };
+
+  const handleWhatsApp = (sale: typeof creditSales[0]) => {
+    const customer = customers.find((c) => c.id === sale.customerId);
+    const phone = customer?.phone?.replace(/\D/g, "") || "";
+    const msg = encodeURIComponent(
+      `Olá ${sale.customerName}!\n\nComprovante de pagamento:\n` +
+      `Valor: ${fmt(sale.amount)}\n` +
+      `Data compra: ${new Date(sale.date).toLocaleDateString("pt-BR")}\n` +
+      `Vencimento: ${new Date(sale.dueDate).toLocaleDateString("pt-BR")}\n` +
+      `Status: ${sale.status === "pago" ? "PAGO ✅" : "PENDENTE"}\n\n` +
+      `Obrigado pela preferência!`
+    );
+    window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank");
+  };
+
+  const handlePrint = (sale: typeof creditSales[0]) => {
+    const customer = customers.find((c) => c.id === sale.customerId);
+    const printWindow = window.open("", "_blank", "width=320,height=500");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html><head><title>Comprovante</title>
+      <style>body{font-family:monospace;font-size:12px;padding:10px;max-width:280px;margin:0 auto}
+      .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
+      .bold{font-weight:bold}.row{display:flex;justify-content:space-between;margin:2px 0}</style></head>
+      <body>
+        <div class="center bold">COMPROVANTE DE DÉBITO</div>
+        <div class="line"></div>
+        <div class="bold">${sale.customerName}</div>
+        <div>${customer?.phone || ""}</div>
+        <div class="line"></div>
+        <div class="row"><span>Valor:</span><span class="bold">${fmt(sale.amount)}</span></div>
+        <div class="row"><span>Data compra:</span><span>${new Date(sale.date).toLocaleDateString("pt-BR")}</span></div>
+        <div class="row"><span>Vencimento:</span><span>${new Date(sale.dueDate).toLocaleDateString("pt-BR")}</span></div>
+        <div class="row"><span>Status:</span><span class="bold">${sale.status === "pago" ? "PAGO ✅" : sale.status === "atrasado" ? "ATRASADO ⚠️" : "PENDENTE"}</span></div>
+        ${sale.status === "pago" && sale.paidAt ? `<div class="row"><span>Pago em:</span><span>${new Date(sale.paidAt).toLocaleDateString("pt-BR")}</span></div>
+        <div class="row"><span>Forma:</span><span>${sale.paymentMethod}</span></div>` : ""}
+        <div class="line"></div>
+        <div class="center" style="margin-top:10px">Obrigado pela preferência!</div>
+      </body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   const statusFilters: { id: StatusFilter; label: string; count: number }[] = [
@@ -53,7 +100,6 @@ const ContasReceberPage = () => {
           <h1 className="font-display text-lg font-bold text-foreground">Contas a Receber</h1>
           <p className="text-xs text-muted-foreground font-body mb-4">Vendas a prazo e pagamentos</p>
 
-          {/* Summary Cards */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="bg-warning/5 border border-warning/20 rounded-xl p-3 text-center">
               <p className="text-[10px] text-muted-foreground font-body">Pendente</p>
@@ -69,14 +115,12 @@ const ContasReceberPage = () => {
             </div>
           </div>
 
-          {/* Search */}
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input type="text" placeholder="Buscar cliente..." value={search} onChange={(e) => setSearch(e.target.value)}
               className="w-full h-10 pl-10 pr-4 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
 
-          {/* Status Filter */}
           <div className="flex gap-2 overflow-x-auto scrollbar-none">
             {statusFilters.map((f) => (
               <button key={f.id} onClick={() => setStatusFilter(f.id)}
@@ -95,8 +139,10 @@ const ContasReceberPage = () => {
           )}
           {filteredSales.map((sale) => {
             const customer = customers.find((c) => c.id === sale.customerId);
+            const justConfirmed = confirmingId === sale.id && sale.status === "pago";
+
             return (
-              <div key={sale.id} className="bg-card rounded-xl p-4 border border-border">
+              <div key={sale.id} className={`bg-card rounded-xl p-4 border transition-all ${justConfirmed ? "border-success/40 bg-success/5" : "border-border"}`}>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
                     <UserCircle className="w-4 h-4 text-muted-foreground" />
@@ -125,25 +171,7 @@ const ContasReceberPage = () => {
                   </div>
                 </div>
 
-                {customer && sale.status !== "pago" && (
-                  <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2 mb-3">
-                    <div className="flex gap-4">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body">Limite</p>
-                        <p className="text-xs font-bold text-foreground font-body">{fmt(customer.limite_credito)}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body">Em Aberto</p>
-                        <p className="text-xs font-bold text-destructive font-body">{fmt(customer.valor_em_aberto)}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground font-body">Disponível</p>
-                        <p className="text-xs font-bold text-success font-body">{fmt(customer.limite_credito - customer.valor_em_aberto)}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
+                {/* Actions for non-paid */}
                 {sale.status !== "pago" && (
                   receivingId === sale.id ? (
                     <div className="space-y-2">
@@ -157,22 +185,41 @@ const ContasReceberPage = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="flex-1 rounded-lg" onClick={() => setReceivingId(null)}>Cancelar</Button>
-                        <Button size="sm" className="flex-1 rounded-lg gap-1" onClick={() => handleReceive(sale.id)}>
+                        <Button size="sm" className="flex-1 rounded-lg gap-1 bg-success hover:bg-success/90" onClick={() => handleConfirmReceive(sale.id)}>
                           <Check className="w-3 h-3" /> Confirmar
                         </Button>
                       </div>
                     </div>
                   ) : (
-                    <Button size="sm" variant="outline" className="w-full rounded-lg gap-1.5" onClick={() => setReceivingId(sale.id)}>
-                      <DollarSign className="w-4 h-4" /> Receber Pagamento
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1 rounded-lg gap-1.5" onClick={() => setReceivingId(sale.id)}>
+                        <DollarSign className="w-4 h-4" /> Receber
+                      </Button>
+                      <Button size="sm" variant="outline" className="rounded-lg" onClick={() => handleWhatsApp(sale)}>
+                        <MessageCircle className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" className="rounded-lg" onClick={() => handlePrint(sale)}>
+                        <Printer className="w-4 h-4" />
+                      </Button>
+                    </div>
                   )
                 )}
 
+                {/* Paid status with actions */}
                 {sale.status === "pago" && sale.paidAt && (
-                  <div className="flex items-center gap-2 text-xs text-success font-body">
-                    <Check className="w-3 h-3" />
-                    Pago em {new Date(sale.paidAt).toLocaleDateString("pt-BR")} via {sale.paymentMethod}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-success font-body">
+                      <Check className="w-3 h-3" />
+                      Pago em {new Date(sale.paidAt).toLocaleDateString("pt-BR")} via {sale.paymentMethod}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1 rounded-lg gap-1.5 text-xs" onClick={() => handleWhatsApp(sale)}>
+                        <MessageCircle className="w-3.5 h-3.5" /> Enviar Comprovante
+                      </Button>
+                      <Button size="sm" variant="outline" className="flex-1 rounded-lg gap-1.5 text-xs" onClick={() => handlePrint(sale)}>
+                        <Printer className="w-3.5 h-3.5" /> Imprimir
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

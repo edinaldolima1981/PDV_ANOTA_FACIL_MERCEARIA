@@ -8,13 +8,12 @@ import PosLayout from "@/components/pdv/PosLayout";
 import CategoryBar from "@/components/pdv/CategoryBar";
 import ProductCard from "@/components/pdv/ProductCard";
 import CartPanel from "@/components/pdv/CartPanel";
-import QuantityModal from "@/components/pdv/QuantityModal";
+import { toast } from "sonner";
 
 const SalesHome = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todos");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const { totalItems, totalPrice } = useCart();
+  const { addItem, totalItems, totalPrice } = useCart();
   const navigate = useNavigate();
 
   const filteredProducts = MOCK_PRODUCTS.filter((p) => {
@@ -69,7 +68,10 @@ const SalesHome = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                onAdd={(p) => setSelectedProduct(p)}
+                onAdd={(p) => {
+                  addItem(p, 1);
+                  toast.success(`${p.name} adicionado ao carrinho`);
+                }}
               />
             ))}
           </div>
@@ -101,13 +103,6 @@ const SalesHome = () => {
       {/* Desktop Cart Panel */}
       <CartPanel />
 
-      {/* Quantity Modal */}
-      {selectedProduct && (
-        <QuantityModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-        />
-      )}
     </PosLayout>
   );
 };
