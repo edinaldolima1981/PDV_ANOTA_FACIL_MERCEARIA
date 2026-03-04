@@ -51,6 +51,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([...MOCK_PRODUCTS]);
   const [categories, setCategories] = useState<Category[]>([...DEFAULT_CATEGORIES]);
+  const [units, setUnits] = useState<CustomUnit[]>([...DEFAULT_UNITS]);
 
   const addProduct = useCallback((product: Omit<Product, "id">) => {
     const id = `p${Date.now()}`;
@@ -77,9 +78,27 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setCategories((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
+  const addUnit = useCallback((unit: Omit<CustomUnit, "id">) => {
+    const id = `u_${unit.short.toLowerCase().replace(/[^a-z0-9]/g, "")}${Date.now()}`;
+    const newUnit = { ...unit, id };
+    setUnits((prev) => [...prev, newUnit]);
+    // Update global maps for backward compat
+    UNIT_LABELS[id] = unit.label;
+    UNIT_SHORT[id] = unit.short;
+  }, []);
+
+  const deleteUnit = useCallback((id: string) => {
+    setUnits((prev) => prev.filter((u) => u.id !== id));
+  }, []);
+
+  const getUnitShort = useCallback((id: string) => {
+    const unit = units.find((u) => u.id === id);
+    return unit?.short || UNIT_SHORT[id] || id;
+  }, [units]);
+
   return (
     <ProductContext.Provider
-      value={{ products, categories, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory }}
+      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort }}
     >
       {children}
     </ProductContext.Provider>
