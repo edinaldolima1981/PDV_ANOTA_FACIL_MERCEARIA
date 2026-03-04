@@ -14,6 +14,7 @@ const LoginPin = () => {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState<UserRole>(null);
   const navigate = useNavigate();
+  const { storeName } = useStore();
 
   const handleDigit = useCallback((digit: string) => {
     if (pin.length >= 4) return;
