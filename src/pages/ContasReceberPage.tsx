@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useStore } from "@/contexts/StoreContext";
 import { Search, UserCircle, DollarSign, Check, MessageCircle, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
