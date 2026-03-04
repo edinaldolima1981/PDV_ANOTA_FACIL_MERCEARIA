@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useStore } from "@/contexts/StoreContext";
 import { Search, UserCircle, Plus, Check, AlertCircle, MessageCircle, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers, type Customer } from "@/contexts/CustomerContext";
@@ -6,6 +7,7 @@ import PosLayout from "@/components/pdv/PosLayout";
 
 const FiadoPage = () => {
   const { customers, creditSales, addCustomer } = useCustomers();
+  const { storeName } = useStore();
   const [search, setSearch] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
@@ -66,7 +68,8 @@ const FiadoPage = () => {
         .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; text-align: right; border-top: 2px dashed #000; padding-top: 10px; }
         .info { font-size: 0.85em; color: #666; }
       </style></head><body>
-      <h2>EXTRATO DE FIADO</h2>
+      <h2>${storeName}</h2>
+      <p style="text-align:center;font-size:0.9em;margin:0">EXTRATO DE FIADO</p>
       <p><strong>${customer.name}</strong><br/><span class="info">${customer.phone}</span></p>
       <p class="info">Limite: ${fmt(customer.limite_credito)} | Disponível: ${fmt(customer.limite_credito - customer.valor_em_aberto)}</p>
       <hr/>

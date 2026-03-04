@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useStore } from "@/contexts/StoreContext";
 import { Search, UserCircle, DollarSign, Check, MessageCircle, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
@@ -10,6 +11,7 @@ type StatusFilter = "todos" | "pendente" | "pago" | "atrasado";
 
 const ContasReceberPage = () => {
   const { customers, creditSales, receiveSalePayment } = useCustomers();
+  const { storeName } = useStore();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [receivingId, setReceivingId] = useState<string | null>(null);
@@ -59,6 +61,7 @@ const ContasReceberPage = () => {
       .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
       .bold{font-weight:bold}.row{display:flex;justify-content:space-between;margin:2px 0}</style></head>
       <body>
+        <div class="center bold" style="font-size:14px;margin-bottom:2px">${storeName}</div>
         <div class="center bold">${sale.status === "pago" ? "COMPROVANTE DE PAGAMENTO" : "COMPROVANTE DE DÉBITO"}</div>
         <div class="line"></div>
         <div class="bold">${sale.customerName}</div>

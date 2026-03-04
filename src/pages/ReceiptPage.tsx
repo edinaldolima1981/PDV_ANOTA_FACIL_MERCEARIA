@@ -33,6 +33,7 @@ const ReceiptPage = () => {
         .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
         .bold{font-weight:bold}.row{display:flex;justify-content:space-between;margin:2px 0}</style></head>
         <body>
+          <div class="center bold" style="font-size:14px;margin-bottom:2px">${storeName}</div>
           <div class="center bold">COMPROVANTE DE PAGAMENTO</div>
           <div class="center">Pedido #${orderNumber}</div>
           <div class="center">${dateStr} às ${timeStr}</div>
