@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Check, Printer, MessageCircle, ArrowLeft, Leaf, Copy } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { QRCodeSVG } from "qrcode.react";
@@ -9,12 +11,15 @@ import { toast } from "sonner";
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { storeName, pixKey, pixKeyType, pixKeyFormatted } = useStore();
+  const { getUnitShort } = useProducts();
   const navigate = useNavigate();
+  const location = useLocation();
+  const paymentMethod = (location.state as any)?.paymentMethod || "";
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   const dateStr = now.toLocaleDateString("pt-BR");
   const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const orderNumber = String(Math.floor(Math.random() * 9000) + 1000);
+  const orderNumber = useMemo(() => String(Math.floor(Math.random() * 9000) + 1000), []);
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
