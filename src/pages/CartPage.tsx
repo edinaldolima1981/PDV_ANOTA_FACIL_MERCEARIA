@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const CartPage = () => {
   const { items, updateQuantity, removeItem, totalPrice, totalItems } = useCart();
+  const { getUnitShort } = useProducts();
   const navigate = useNavigate();
 
   if (items.length === 0) {
