@@ -87,6 +87,11 @@ const CheckoutPage = () => {
       });
     }
 
+    // Decrement stock for each item sold
+    items.forEach(({ product, quantity }) => {
+      updateProduct(product.id, { stock: Math.max(0, product.stock - quantity) });
+    });
+
     setTimeout(() => {
       navigate("/receipt", { state: { paymentMethod: selectedMethod, customerName: selectedCustomer?.name } });
     }, 1200);
