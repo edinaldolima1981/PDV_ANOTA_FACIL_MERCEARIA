@@ -1,10 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { ShoppingCart, Package, Users, BarChart3, Settings } from "lucide-react";
+import { ShoppingCart, Package, Users, BarChart3, Settings, Receipt } from "lucide-react";
 
 const NAV_ITEMS = [
   { path: "/home", label: "Vendas", icon: ShoppingCart },
   { path: "/stock", label: "Estoque", icon: Package },
   { path: "/fiado", label: "Fiado", icon: Users },
+  { path: "/contas-receber", label: "A Prazo", icon: Receipt },
   { path: "/dashboard", label: "Painel", icon: BarChart3 },
   { path: "/admin", label: "Config", icon: Settings },
 ];
