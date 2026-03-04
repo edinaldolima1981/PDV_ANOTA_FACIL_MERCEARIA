@@ -1,5 +1,6 @@
 import { Minus, Plus, Trash2, UserPlus, Printer, ChevronRight } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
