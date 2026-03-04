@@ -1,6 +1,5 @@
 import type { Product } from "@/data/products";
 import { useProducts } from "@/contexts/ProductContext";
-import { UNIT_SHORT } from "@/contexts/ProductContext";
 import { Plus } from "lucide-react";
 
 interface ProductCardProps {
