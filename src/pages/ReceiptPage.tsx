@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Check, Printer, MessageCircle, ArrowLeft, Leaf } from "lucide-react";
+import { Check, Printer, MessageCircle, ArrowLeft, Leaf, Copy } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import { QRCodeSVG } from "qrcode.react";
+import { toast } from "sonner";
 
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
@@ -11,6 +13,8 @@ const ReceiptPage = () => {
   const dateStr = now.toLocaleDateString("pt-BR");
   const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const orderNumber = String(Math.floor(Math.random() * 9000) + 1000);
+  const PIX_KEY = "95193258300";
+  const PIX_NAME = "Empório Orgânico";
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
@@ -37,6 +41,9 @@ const ReceiptPage = () => {
           <div class="line"></div>
           <div class="row"><span class="bold">TOTAL:</span><span class="bold">${fmt(totalPrice)}</span></div>
           <div class="line"></div>
+          <div class="center bold" style="margin-top:8px">CHAVE PIX (CPF)</div>
+          <div class="center">${PIX_KEY.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}</div>
+          <div class="line"></div>
           <div class="center" style="margin-top:10px">Obrigado pela preferência!</div>
         </body></html>
       `);
@@ -60,6 +67,7 @@ const ReceiptPage = () => {
         `${dateStr} às ${timeStr}\n\n` +
         `${itemsList}\n\n` +
         `*TOTAL: ${fmt(totalPrice)}*\n\n` +
+        `💳 *Chave Pix (CPF):* ${PIX_KEY.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}\n\n` +
         `Obrigado pela preferência! 🙏`
       );
       window.open(`https://wa.me/?text=${msg}`, "_blank");
@@ -136,12 +144,25 @@ const ReceiptPage = () => {
 
         {/* QR Code placeholder */}
         <div className="px-5 pb-5 flex flex-col items-center">
-          <div className="w-24 h-24 rounded-xl bg-secondary flex items-center justify-center mb-2">
-            <span className="text-3xl">📱</span>
+          <QRCodeSVG
+            value={`00020126330014BR.GOV.BCB.PIX0111${PIX_KEY}5204000053039865404${totalPrice.toFixed(2)}5802BR5913${PIX_NAME}6009SAO PAULO62070503***6304`}
+            size={120}
+            level="M"
+            className="mb-3"
+          />
+          <p className="text-xs font-semibold text-foreground font-body mb-1">Pague via Pix</p>
+          <div className="flex items-center gap-2 bg-secondary rounded-lg px-3 py-1.5">
+            <p className="text-xs text-muted-foreground font-body font-mono">
+              {PIX_KEY.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}
+            </p>
+            <button
+              onClick={() => { navigator.clipboard.writeText(PIX_KEY); toast.success("Chave Pix copiada!"); }}
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <p className="text-xs text-muted-foreground font-body">
-            Escaneie para nota fiscal
-          </p>
+          <p className="text-[10px] text-muted-foreground font-body mt-1">CPF: Chave Pix</p>
         </div>
       </div>
 
