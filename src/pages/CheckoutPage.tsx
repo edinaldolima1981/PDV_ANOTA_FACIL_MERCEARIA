@@ -25,6 +25,7 @@ const CheckoutPage = () => {
   const [adminOverrideGranted, setAdminOverrideGranted] = useState(false);
   const { totalPrice, totalItems, items, clearCart } = useCart();
   const { checkCreditAvailable, addCreditSale, logAdminAction } = useCustomers();
+  const { updateProduct } = useProducts();
   const navigate = useNavigate();
 
   const isAPrazo = selectedMethod === "a_prazo";
