@@ -59,13 +59,21 @@ const CartPage = () => {
               className="bg-card rounded-2xl p-4 shadow-soft flex gap-4 items-center"
             >
               {/* Emoji icon */}
-              <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center text-2xl flex-shrink-0">
-                {product.category === "frutas" && "🍎"}
-                {product.category === "verduras" && "🥬"}
-                {product.category === "laticinios" && "🧀"}
-                {product.category === "bebidas" && "🥤"}
-                {product.category === "graos" && "🌾"}
-                {product.category === "padaria" && "🍞"}
+              <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
+                {product.image ? (
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                ) : (
+                  <>
+                  {product.category === "acougue" && "🥩"}
+                  {product.category === "frutas" && "🍎"}
+                  {product.category === "verduras" && "🥬"}
+                  {product.category === "laticinios" && "🧀"}
+                  {product.category === "bebidas" && "🥤"}
+                  {product.category === "graos" && "🌾"}
+                  {product.category === "padaria" && "🍞"}
+                  {!["acougue","frutas","verduras","laticinios","bebidas","graos","padaria"].includes(product.category) && "📦"}
+                  </>
+                )}
               </div>
 
               {/* Info */}
@@ -125,7 +133,7 @@ const CartPage = () => {
       </main>
 
       {/* Checkout Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 pb-6 shadow-elevated z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-elevated z-40 safe-bottom" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
         {/* Summary */}
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-muted-foreground font-body">Total</span>
