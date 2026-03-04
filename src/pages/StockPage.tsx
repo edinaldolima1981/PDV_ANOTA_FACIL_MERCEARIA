@@ -27,6 +27,9 @@ const StockPage = () => {
   const [editCategory, setEditCategory] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showNewUnitForm, setShowNewUnitForm] = useState(false);
+  const [newUnitLabel, setNewUnitLabel] = useState("");
+  const [newUnitShort, setNewUnitShort] = useState("");
 
   // New product state
   const [newName, setNewName] = useState("");
