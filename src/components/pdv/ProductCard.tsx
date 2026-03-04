@@ -7,6 +7,7 @@ interface ProductCardProps {
 }
 
 const CATEGORY_EMOJI: Record<string, string> = {
+  acougue: "🥩",
   frutas: "🍎",
   verduras: "🥬",
   laticinios: "🧀",
