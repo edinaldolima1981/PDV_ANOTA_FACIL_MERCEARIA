@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CreditCard, QrCode, Banknote, Wallet, Check, UserCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 import { useCustomers, type Customer } from "@/contexts/CustomerContext";
 import { Button } from "@/components/ui/button";
 import CustomerSelectModal from "@/components/pdv/CustomerSelectModal";
