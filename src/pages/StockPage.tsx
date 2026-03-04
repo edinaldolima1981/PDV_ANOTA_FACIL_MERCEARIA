@@ -150,7 +150,7 @@ const StockPage = () => {
         <main className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5 space-y-2">
           {filtered.map((product) => {
             const status = getStockStatus(product.stock);
-            const unitLabel = UNIT_SHORT[product.unit as ProductUnit] || product.unit;
+            const unitLabel = getUnitShort(product.unit);
             const cat = categories.find((c) => c.id === product.category);
 
             return (
