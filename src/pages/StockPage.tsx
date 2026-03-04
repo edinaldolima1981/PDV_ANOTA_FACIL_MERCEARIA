@@ -97,6 +97,15 @@ const StockPage = () => {
     setShowAddModal(false);
   };
 
+  const handleAddUnit = () => {
+    if (!newUnitLabel.trim() || !newUnitShort.trim()) return;
+    addUnit({ label: newUnitLabel.trim(), short: newUnitShort.trim() });
+    toast.success("Unidade criada!");
+    setNewUnitLabel("");
+    setNewUnitShort("");
+    setShowNewUnitForm(false);
+  };
+
   const handleImageUpload = (setter: (v: string) => void) => {
     const input = document.createElement("input");
     input.type = "file";
