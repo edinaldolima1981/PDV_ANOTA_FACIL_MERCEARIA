@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Store, Delete, ShieldCheck, User } from "lucide-react";
+import { useStore } from "@/contexts/StoreContext";
 
 const ADMIN_PIN = "1234";
 const EMPLOYEE_PIN = "0000";
