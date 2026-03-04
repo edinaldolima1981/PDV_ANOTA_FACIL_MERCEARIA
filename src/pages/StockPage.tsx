@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save } from "lucide-react";
-import { useProducts, UNIT_SHORT, UNIT_LABELS, type ProductUnit } from "@/contexts/ProductContext";
+import { useProducts } from "@/contexts/ProductContext";
 import type { Product } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import PosLayout from "@/components/pdv/PosLayout";
