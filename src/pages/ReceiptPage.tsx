@@ -12,6 +12,62 @@ const ReceiptPage = () => {
   const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const orderNumber = String(Math.floor(Math.random() * 9000) + 1000);
 
+  const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
+
+  const handlePrint = () => {
+    try {
+      const printWindow = window.open("", "_blank", "width=320,height=600");
+      if (!printWindow) return;
+      const itemsHtml = items.map(({ product, quantity }) => {
+        const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+        const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
+        return `<div class="row"><span>${product.name} x${qty} ${unitLabel}</span><span>${fmt(product.price * quantity)}</span></div>`;
+      }).join("");
+      printWindow.document.write(`
+        <html><head><title>Comprovante</title>
+        <style>body{font-family:monospace;font-size:12px;padding:10px;max-width:280px;margin:0 auto}
+        .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
+        .bold{font-weight:bold}.row{display:flex;justify-content:space-between;margin:2px 0}</style></head>
+        <body>
+          <div class="center bold">COMPROVANTE DE PAGAMENTO</div>
+          <div class="center">Pedido #${orderNumber}</div>
+          <div class="center">${dateStr} às ${timeStr}</div>
+          <div class="line"></div>
+          ${itemsHtml}
+          <div class="line"></div>
+          <div class="row"><span class="bold">TOTAL:</span><span class="bold">${fmt(totalPrice)}</span></div>
+          <div class="line"></div>
+          <div class="center" style="margin-top:10px">Obrigado pela preferência!</div>
+        </body></html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    } catch (error) {
+      console.error("Erro ao imprimir:", error);
+    }
+  };
+
+  const handleWhatsApp = () => {
+    try {
+      const itemsList = items.map(({ product, quantity }) => {
+        const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+        const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
+        return `• ${product.name} x${qty} ${unitLabel} - ${fmt(product.price * quantity)}`;
+      }).join("\n");
+      const msg = encodeURIComponent(
+        `*COMPROVANTE DE PAGAMENTO*\n` +
+        `Pedido #${orderNumber}\n` +
+        `${dateStr} às ${timeStr}\n\n` +
+        `${itemsList}\n\n` +
+        `*TOTAL: ${fmt(totalPrice)}*\n\n` +
+        `Obrigado pela preferência! 🙏`
+      );
+      window.open(`https://wa.me/?text=${msg}`, "_blank");
+    } catch (error) {
+      console.error("Erro ao enviar WhatsApp:", error);
+    }
+  };
+
   const handleNewSale = () => {
     clearCart();
     navigate("/home");
@@ -96,6 +152,7 @@ const ReceiptPage = () => {
             variant="outline"
             size="lg"
             className="flex-1 rounded-2xl gap-2"
+            onClick={handlePrint}
           >
             <Printer className="w-4 h-4" />
             Imprimir
@@ -104,6 +161,7 @@ const ReceiptPage = () => {
             variant="outline"
             size="lg"
             className="flex-1 rounded-2xl gap-2"
+            onClick={handleWhatsApp}
           >
             <MessageCircle className="w-4 h-4" />
             WhatsApp
