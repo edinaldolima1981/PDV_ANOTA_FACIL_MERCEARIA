@@ -28,7 +28,7 @@ const ReceiptPage = () => {
       const printWindow = window.open("", "_blank", "width=320,height=600");
       if (!printWindow) return;
       const itemsHtml = items.map(({ product, quantity }) => {
-        const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+        const unitLabel = getUnitShort(product.unit);
         const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
         return `<div class="row"><span>${product.name} x${qty} ${unitLabel}</span><span>${fmt(product.price * quantity)}</span></div>`;
       }).join("");
