@@ -12,6 +12,7 @@ type StatusFilter = "todos" | "pendente" | "pago" | "atrasado";
 const ContasReceberPage = () => {
   const { customers, creditSales, receiveSalePayment } = useCustomers();
   const { storeName } = useStore();
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [receivingId, setReceivingId] = useState<string | null>(null);
   const [receiveMethod, setReceiveMethod] = useState("dinheiro");
