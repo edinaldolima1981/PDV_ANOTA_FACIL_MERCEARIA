@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save } from "lucide-react";
-import { useProducts, UNIT_SHORT, UNIT_LABELS, type ProductUnit } from "@/contexts/ProductContext";
+import { useProducts } from "@/contexts/ProductContext";
 import type { Product } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import PosLayout from "@/components/pdv/PosLayout";
@@ -15,7 +15,7 @@ const getStockStatus = (stock: number): { label: string; color: string; bg: stri
 };
 
 const StockPage = () => {
-  const { products, categories, updateProduct, deleteProduct, addProduct } = useProducts();
+  const { products, categories, units, updateProduct, deleteProduct, addProduct, addUnit, getUnitShort } = useProducts();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StockFilter>("all");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -27,6 +27,9 @@ const StockPage = () => {
   const [editCategory, setEditCategory] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showNewUnitForm, setShowNewUnitForm] = useState(false);
+  const [newUnitLabel, setNewUnitLabel] = useState("");
+  const [newUnitShort, setNewUnitShort] = useState("");
 
   // New product state
   const [newName, setNewName] = useState("");
@@ -94,6 +97,15 @@ const StockPage = () => {
     setShowAddModal(false);
   };
 
+  const handleAddUnit = () => {
+    if (!newUnitLabel.trim() || !newUnitShort.trim()) return;
+    addUnit({ label: newUnitLabel.trim(), short: newUnitShort.trim() });
+    toast.success("Unidade criada!");
+    setNewUnitLabel("");
+    setNewUnitShort("");
+    setShowNewUnitForm(false);
+  };
+
   const handleImageUpload = (setter: (v: string) => void) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -147,7 +159,7 @@ const StockPage = () => {
         <main className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5 space-y-2">
           {filtered.map((product) => {
             const status = getStockStatus(product.stock);
-            const unitLabel = UNIT_SHORT[product.unit as ProductUnit] || product.unit;
+            const unitLabel = getUnitShort(product.unit);
             const cat = categories.find((c) => c.id === product.category);
 
             return (
@@ -242,11 +254,15 @@ const StockPage = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-body mb-1 block">Unidade</label>
-                  <select value={newUnit} onChange={(e) => setNewUnit(e.target.value)}
+                  <select value={newUnit} onChange={(e) => {
+                    if (e.target.value === "__new__") { setShowNewUnitForm(true); return; }
+                    setNewUnit(e.target.value);
+                  }}
                     className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    {Object.entries(UNIT_LABELS).map(([key, label]) => (
-                      <option key={key} value={key}>{label} ({UNIT_SHORT[key as ProductUnit]})</option>
+                    {units.map((u) => (
+                      <option key={u.id} value={u.id}>{u.label} ({u.short})</option>
                     ))}
+                    <option value="__new__">+ Nova unidade...</option>
                   </select>
                 </div>
                 <div>
@@ -319,11 +335,15 @@ const StockPage = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-body mb-1 block">Unidade</label>
-                  <select value={editUnit} onChange={(e) => setEditUnit(e.target.value)}
+                  <select value={editUnit} onChange={(e) => {
+                    if (e.target.value === "__new__") { setShowNewUnitForm(true); return; }
+                    setEditUnit(e.target.value);
+                  }}
                     className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    {Object.entries(UNIT_LABELS).map(([key, label]) => (
-                      <option key={key} value={key}>{label} ({UNIT_SHORT[key as ProductUnit]})</option>
+                    {units.map((u) => (
+                      <option key={u.id} value={u.id}>{u.label} ({u.short})</option>
                     ))}
+                    <option value="__new__">+ Nova unidade...</option>
                   </select>
                 </div>
                 <div>
@@ -345,6 +365,35 @@ const StockPage = () => {
                 <Save className="w-4 h-4" /> Salvar
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Unit Modal */}
+      {showNewUnitForm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setShowNewUnitForm(false)}>
+          <div className="bg-card w-full max-w-xs rounded-2xl p-5 shadow-elevated animate-fade-up mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-base font-bold text-foreground">Nova Unidade</h3>
+              <button onClick={() => setShowNewUnitForm(false)} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="text-xs text-muted-foreground font-body mb-1 block">Nome (ex: Galão)</label>
+                <input type="text" value={newUnitLabel} onChange={(e) => setNewUnitLabel(e.target.value)} placeholder="Nome da unidade"
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground font-body mb-1 block">Abreviação (ex: gl)</label>
+                <input type="text" value={newUnitShort} onChange={(e) => setNewUnitShort(e.target.value)} placeholder="Abreviação"
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+            </div>
+            <Button className="w-full rounded-xl gap-1.5" onClick={handleAddUnit} disabled={!newUnitLabel.trim() || !newUnitShort.trim()}>
+              <Plus className="w-4 h-4" /> Criar Unidade
+            </Button>
           </div>
         </div>
       )}

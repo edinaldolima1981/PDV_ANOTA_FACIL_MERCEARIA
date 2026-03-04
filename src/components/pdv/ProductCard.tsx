@@ -1,6 +1,5 @@
 import type { Product } from "@/data/products";
 import { useProducts } from "@/contexts/ProductContext";
-import { UNIT_SHORT } from "@/contexts/ProductContext";
 import { Plus } from "lucide-react";
 
 interface ProductCardProps {
@@ -9,8 +8,8 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onAdd }: ProductCardProps) => {
-  const { categories } = useProducts();
-  const unitLabel = UNIT_SHORT[product.unit as keyof typeof UNIT_SHORT] || product.unit;
+  const { categories, getUnitShort } = useProducts();
+  const unitLabel = getUnitShort(product.unit);
   const category = categories.find((c) => c.id === product.category);
   const emoji = category?.icon || "📦";
 
