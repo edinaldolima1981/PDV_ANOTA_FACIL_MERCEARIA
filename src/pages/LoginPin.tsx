@@ -23,10 +23,10 @@ const LoginPin = () => {
     if (newPin.length === 4) {
       if (newPin === ADMIN_PIN) {
         setSuccess("admin");
-        setTimeout(() => navigate("/"), 800);
+        setTimeout(() => navigate("/home"), 800);
       } else if (newPin === EMPLOYEE_PIN) {
         setSuccess("employee");
-        setTimeout(() => navigate("/"), 800);
+        setTimeout(() => navigate("/home"), 800);
       } else {
         setError(true);
         setTimeout(() => {
