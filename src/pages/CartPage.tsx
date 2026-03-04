@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 import { Button } from "@/components/ui/button";
 
 const CartPage = () => {
   const { items, updateQuantity, removeItem, totalPrice, totalItems } = useCart();
+  const { getUnitShort } = useProducts();
   const navigate = useNavigate();
 
   if (items.length === 0) {
@@ -49,7 +51,7 @@ const CartPage = () => {
       {/* Items list */}
       <main className="flex-1 px-4 pt-4 space-y-3">
         {items.map(({ product, quantity }) => {
-          const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+          const unitLabel = getUnitShort(product.unit);
           const step = product.unit === "kg" ? 0.1 : 1;
           const subtotal = product.price * quantity;
 

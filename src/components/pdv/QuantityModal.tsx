@@ -3,6 +3,7 @@ import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 
 interface QuantityModalProps {
   product: Product;
@@ -12,8 +13,9 @@ interface QuantityModalProps {
 const QuantityModal = ({ product, onClose }: QuantityModalProps) => {
   const [quantity, setQuantity] = useState(product.unit === "kg" ? 0.5 : 1);
   const { addItem } = useCart();
+  const { getUnitShort } = useProducts();
   const step = product.unit === "kg" ? 0.1 : 1;
-  const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+  const unitLabel = getUnitShort(product.unit);
 
   const increment = () => setQuantity((q) => Math.round((q + step) * 10) / 10);
   const decrement = () =>

@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Store, Delete, ShieldCheck, User } from "lucide-react";
+import { useStore } from "@/contexts/StoreContext";
 
 const ADMIN_PIN = "1234";
 const EMPLOYEE_PIN = "0000";
@@ -13,6 +14,7 @@ const LoginPin = () => {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState<UserRole>(null);
   const navigate = useNavigate();
+  const { storeName } = useStore();
 
   const handleDigit = useCallback((digit: string) => {
     if (pin.length >= 4) return;
@@ -57,7 +59,7 @@ const LoginPin = () => {
           <Store className="w-8 h-8 text-primary-foreground" />
         </div>
         <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">
-          Empório Orgânico
+          {storeName}
         </h1>
         <p className="text-muted-foreground text-sm mt-1 font-body">
           Sistema PDV

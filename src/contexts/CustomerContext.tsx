@@ -129,30 +129,23 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const receiveSalePayment = useCallback((saleId: string, paymentMethod: string) => {
-    setCreditSales((prev) =>
-      prev.map((s) =>
+    setCreditSales((prev) => {
+      const sale = prev.find((s) => s.id === saleId);
+      if (sale) {
+        setCustomers((prevC) =>
+          prevC.map((c) =>
+            c.id === sale.customerId
+              ? { ...c, valor_em_aberto: Math.max(0, c.valor_em_aberto - sale.amount) }
+              : c
+          )
+        );
+      }
+      return prev.map((s) =>
         s.id === saleId
           ? { ...s, status: "pago" as const, paymentMethod, paidAt: new Date().toISOString() }
           : s
-      )
-    );
-    const sale = creditSales.find((s) => s.id === saleId);
-    if (sale) {
-      setCustomers((prev) =>
-        prev.map((c) =>
-          c.id === sale.customerId
-            ? { ...c, valor_em_aberto: Math.max(0, c.valor_em_aberto - sale.amount) }
-            : c
-        )
       );
-    }
-  }, [creditSales]);
-
-  const updateCustomerLimit = useCallback((customerId: string, newLimit: number, adminId: string) => {
-    setCustomers((prev) =>
-      prev.map((c) => (c.id === customerId ? { ...c, limite_credito: newLimit } : c))
-    );
-    logAdminAction(adminId, "Alteração de limite", `Limite alterado para R$ ${newLimit.toFixed(2)} - Cliente: ${customerId}`);
+    });
   }, []);
 
   const logAdminAction = useCallback((adminId: string, action: string, details: string) => {
@@ -161,6 +154,13 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
       { id: `log${Date.now()}`, adminId, action, date: new Date().toISOString(), details },
     ]);
   }, []);
+
+  const updateCustomerLimit = useCallback((customerId: string, newLimit: number, adminId: string) => {
+    setCustomers((prev) =>
+      prev.map((c) => (c.id === customerId ? { ...c, limite_credito: newLimit } : c))
+    );
+    logAdminAction(adminId, "Alteração de limite", `Limite alterado para R$ ${newLimit.toFixed(2)} - Cliente: ${customerId}`);
+  }, [logAdminAction]);
 
   return (
     <CustomerContext.Provider

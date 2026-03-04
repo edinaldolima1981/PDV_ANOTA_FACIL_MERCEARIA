@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CreditCard, QrCode, Banknote, Wallet, Check, UserCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 import { useCustomers, type Customer } from "@/contexts/CustomerContext";
 import { Button } from "@/components/ui/button";
 import CustomerSelectModal from "@/components/pdv/CustomerSelectModal";
@@ -24,6 +25,7 @@ const CheckoutPage = () => {
   const [adminOverrideGranted, setAdminOverrideGranted] = useState(false);
   const { totalPrice, totalItems, items, clearCart } = useCart();
   const { checkCreditAvailable, addCreditSale, logAdminAction } = useCustomers();
+  const { updateProduct } = useProducts();
   const navigate = useNavigate();
 
   const isAPrazo = selectedMethod === "a_prazo";
@@ -84,6 +86,11 @@ const CheckoutPage = () => {
         } : {}),
       });
     }
+
+    // Decrement stock for each item sold
+    items.forEach(({ product, quantity }) => {
+      updateProduct(product.id, { stock: Math.max(0, product.stock - quantity) });
+    });
 
     setTimeout(() => {
       navigate("/receipt", { state: { paymentMethod: selectedMethod, customerName: selectedCustomer?.name } });

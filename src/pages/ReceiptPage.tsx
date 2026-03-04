@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Check, Printer, MessageCircle, ArrowLeft, Leaf, Copy } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/contexts/ProductContext";
 import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { QRCodeSVG } from "qrcode.react";
@@ -9,12 +11,15 @@ import { toast } from "sonner";
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { storeName, pixKey, pixKeyType, pixKeyFormatted } = useStore();
+  const { getUnitShort } = useProducts();
   const navigate = useNavigate();
+  const location = useLocation();
+  const paymentMethod = (location.state as any)?.paymentMethod || "";
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   const dateStr = now.toLocaleDateString("pt-BR");
   const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const orderNumber = String(Math.floor(Math.random() * 9000) + 1000);
+  const orderNumber = useMemo(() => String(Math.floor(Math.random() * 9000) + 1000), []);
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
@@ -23,7 +28,7 @@ const ReceiptPage = () => {
       const printWindow = window.open("", "_blank", "width=320,height=600");
       if (!printWindow) return;
       const itemsHtml = items.map(({ product, quantity }) => {
-        const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+        const unitLabel = getUnitShort(product.unit);
         const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
         return `<div class="row"><span>${product.name} x${qty} ${unitLabel}</span><span>${fmt(product.price * quantity)}</span></div>`;
       }).join("");
@@ -59,7 +64,7 @@ const ReceiptPage = () => {
   const handleWhatsApp = () => {
     try {
       const itemsList = items.map(({ product, quantity }) => {
-        const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+        const unitLabel = getUnitShort(product.unit);
         const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
         return `• ${product.name} x${qty} ${unitLabel} - ${fmt(product.price * quantity)}`;
       }).join("\n");
@@ -116,7 +121,7 @@ const ReceiptPage = () => {
         {/* Items */}
         <div className="px-5 py-4 space-y-3">
           {items.map(({ product, quantity }) => {
-            const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+            const unitLabel = getUnitShort(product.unit);
             return (
               <div key={product.id} className="flex justify-between text-sm font-body">
                 <span className="text-foreground">
