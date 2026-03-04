@@ -15,7 +15,7 @@ const getStockStatus = (stock: number): { label: string; color: string; bg: stri
 };
 
 const StockPage = () => {
-  const { products, categories, updateProduct, deleteProduct, addProduct } = useProducts();
+  const { products, categories, units, updateProduct, deleteProduct, addProduct, addUnit, getUnitShort } = useProducts();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StockFilter>("all");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
