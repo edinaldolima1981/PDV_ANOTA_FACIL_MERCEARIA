@@ -64,7 +64,7 @@ const ReceiptPage = () => {
   const handleWhatsApp = () => {
     try {
       const itemsList = items.map(({ product, quantity }) => {
-        const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+        const unitLabel = getUnitShort(product.unit);
         const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
         return `• ${product.name} x${qty} ${unitLabel} - ${fmt(product.price * quantity)}`;
       }).join("\n");
