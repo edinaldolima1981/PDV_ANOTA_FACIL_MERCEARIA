@@ -78,8 +78,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     storeHours: "08:00 - 22:00",
     storePhone: "(11) 3333-4444",
     ownerName: "",
-    pixKey: "",
-    pixKeyType: "",
+    pixKey: "95193258300",
+    pixKeyType: "cpf",
   });
 
   const updateStore = useCallback((data: Partial<StoreSettings>) => {
