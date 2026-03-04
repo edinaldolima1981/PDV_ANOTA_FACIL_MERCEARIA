@@ -27,9 +27,9 @@ const QuantityModal = ({ product, onClose }: QuantityModalProps) => {
   const total = product.price * quantity;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-card w-full max-w-md rounded-t-3xl p-6 pb-8 shadow-elevated animate-fade-up"
+        className="bg-card w-full max-w-sm rounded-2xl p-6 shadow-elevated animate-fade-up mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -44,7 +44,7 @@ const QuantityModal = ({ product, onClose }: QuantityModalProps) => {
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center hover:bg-destructive/10 transition-colors"
+            className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -54,34 +54,34 @@ const QuantityModal = ({ product, onClose }: QuantityModalProps) => {
         <div className="flex items-center justify-center gap-6 mb-6">
           <button
             onClick={decrement}
-            className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center hover:bg-secondary/80 active:scale-95 transition-all"
+            className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
           >
             <Minus className="w-5 h-5 text-foreground" />
           </button>
-          <div className="text-center min-w-[100px]">
-            <p className="text-4xl font-bold text-foreground font-body">
+          <div className="text-center min-w-[80px]">
+            <p className="text-3xl font-bold text-foreground font-body">
               {product.unit === "kg" ? quantity.toFixed(1) : quantity}
             </p>
             <p className="text-sm text-muted-foreground font-body mt-1">{unitLabel}</p>
           </div>
           <button
             onClick={increment}
-            className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
+            className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
           >
             <Plus className="w-5 h-5 text-primary-foreground" />
           </button>
         </div>
 
         {/* Total */}
-        <div className="bg-secondary/50 rounded-2xl p-4 mb-6 flex items-center justify-between">
+        <div className="bg-secondary rounded-xl p-4 mb-5 flex items-center justify-between">
           <span className="text-sm text-muted-foreground font-body">Total</span>
-          <span className="text-xl font-bold text-primary font-body">
+          <span className="text-xl font-bold text-foreground font-body">
             R$ {total.toFixed(2).replace(".", ",")}
           </span>
         </div>
 
         {/* Add button */}
-        <Button size="xl" className="w-full rounded-2xl" onClick={handleAdd}>
+        <Button size="lg" className="w-full rounded-xl" onClick={handleAdd}>
           Adicionar ao carrinho
         </Button>
       </div>
