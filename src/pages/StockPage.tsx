@@ -368,6 +368,35 @@ const StockPage = () => {
           </div>
         </div>
       )}
+
+      {/* New Unit Modal */}
+      {showNewUnitForm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setShowNewUnitForm(false)}>
+          <div className="bg-card w-full max-w-xs rounded-2xl p-5 shadow-elevated animate-fade-up mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-base font-bold text-foreground">Nova Unidade</h3>
+              <button onClick={() => setShowNewUnitForm(false)} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="text-xs text-muted-foreground font-body mb-1 block">Nome (ex: Galão)</label>
+                <input type="text" value={newUnitLabel} onChange={(e) => setNewUnitLabel(e.target.value)} placeholder="Nome da unidade"
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground font-body mb-1 block">Abreviação (ex: gl)</label>
+                <input type="text" value={newUnitShort} onChange={(e) => setNewUnitShort(e.target.value)} placeholder="Abreviação"
+                  className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+            </div>
+            <Button className="w-full rounded-xl gap-1.5" onClick={handleAddUnit} disabled={!newUnitLabel.trim() || !newUnitShort.trim()}>
+              <Plus className="w-4 h-4" /> Criar Unidade
+            </Button>
+          </div>
+        </div>
+      )}
     </PosLayout>
   );
 };
