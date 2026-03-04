@@ -7,7 +7,7 @@ import PosLayout from "@/components/pdv/PosLayout";
 
 const FiadoPage = () => {
   const { customers, creditSales, addCustomer } = useCustomers();
-  const [search, setSearch] = useState("");
+  const { storeName } = useStore();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
   const [newName, setNewName] = useState("");
