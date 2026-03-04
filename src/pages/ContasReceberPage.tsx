@@ -3,6 +3,7 @@ import { Search, UserCircle, DollarSign, Check, MessageCircle, Printer, X } from
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
 import PosLayout from "@/components/pdv/PosLayout";
+import { ReminderPanel } from "@/components/pdv/BillingReminders";
 import { toast } from "sonner";
 
 type StatusFilter = "todos" | "pendente" | "pago" | "atrasado";
@@ -134,6 +135,7 @@ const ContasReceberPage = () => {
         </header>
 
         <main className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5 space-y-2">
+          <ReminderPanel />
           {filteredSales.length === 0 && (
             <p className="text-sm text-muted-foreground font-body text-center py-10">Nenhuma conta encontrada.</p>
           )}
