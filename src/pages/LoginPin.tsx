@@ -59,7 +59,7 @@ const LoginPin = () => {
           <Store className="w-8 h-8 text-primary-foreground" />
         </div>
         <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">
-          Empório Orgânico
+          {storeName}
         </h1>
         <p className="text-muted-foreground text-sm mt-1 font-body">
           Sistema PDV

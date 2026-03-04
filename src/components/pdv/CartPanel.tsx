@@ -25,7 +25,7 @@ const CartPanel = () => {
           </div>
         ) : (
           items.map(({ product, quantity }) => {
-            const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+            const unitLabel = getUnitShort(product.unit);
             const step = product.unit === "kg" ? 0.1 : 1;
             const subtotal = product.price * quantity;
 

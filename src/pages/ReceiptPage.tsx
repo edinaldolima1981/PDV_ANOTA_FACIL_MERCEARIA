@@ -121,7 +121,7 @@ const ReceiptPage = () => {
         {/* Items */}
         <div className="px-5 py-4 space-y-3">
           {items.map(({ product, quantity }) => {
-            const unitLabel = product.unit === "kg" ? "kg" : product.unit === "L" ? "L" : "un";
+            const unitLabel = getUnitShort(product.unit);
             return (
               <div key={product.id} className="flex justify-between text-sm font-body">
                 <span className="text-foreground">

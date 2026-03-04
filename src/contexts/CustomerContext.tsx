@@ -148,19 +148,19 @@ export const CustomerProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  const updateCustomerLimit = useCallback((customerId: string, newLimit: number, adminId: string) => {
-    setCustomers((prev) =>
-      prev.map((c) => (c.id === customerId ? { ...c, limite_credito: newLimit } : c))
-    );
-    logAdminAction(adminId, "Alteração de limite", `Limite alterado para R$ ${newLimit.toFixed(2)} - Cliente: ${customerId}`);
-  }, []);
-
   const logAdminAction = useCallback((adminId: string, action: string, details: string) => {
     setAdminLogs((prev) => [
       ...prev,
       { id: `log${Date.now()}`, adminId, action, date: new Date().toISOString(), details },
     ]);
   }, []);
+
+  const updateCustomerLimit = useCallback((customerId: string, newLimit: number, adminId: string) => {
+    setCustomers((prev) =>
+      prev.map((c) => (c.id === customerId ? { ...c, limite_credito: newLimit } : c))
+    );
+    logAdminAction(adminId, "Alteração de limite", `Limite alterado para R$ ${newLimit.toFixed(2)} - Cliente: ${customerId}`);
+  }, [logAdminAction]);
 
   return (
     <CustomerContext.Provider
