@@ -7,19 +7,18 @@ interface CategoryBarProps {
 
 const CategoryBar = ({ selected, onSelect }: CategoryBarProps) => {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
+    <div className="flex gap-2 overflow-x-auto scrollbar-none">
       {CATEGORIES.map((cat) => (
         <button
           key={cat.id}
           onClick={() => onSelect(cat.id)}
-          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium font-body transition-all duration-200 active:scale-95 ${
+          className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium font-body transition-all duration-150 ${
             selected === cat.id
-              ? "bg-primary text-primary-foreground shadow-soft"
-              : "bg-card text-foreground hover:bg-secondary"
+              ? "bg-foreground text-card shadow-soft"
+              : "bg-card text-foreground border border-border hover:bg-secondary"
           }`}
         >
-          <span className="text-base">{cat.icon}</span>
-          <span>{cat.label}</span>
+          {cat.label}
         </button>
       ))}
     </div>

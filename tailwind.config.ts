@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["'Playfair Display'", "serif"],
-        body: ["'DM Sans'", "sans-serif"],
+        display: ["'Noto Serif'", "serif"],
+        body: ["'Noto Sans'", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,15 +51,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        olive: {
-          DEFAULT: "hsl(var(--olive))",
-          light: "hsl(var(--olive-light))",
-        },
-        cream: {
-          DEFAULT: "hsl(var(--cream))",
-          dark: "hsl(var(--cream-dark))",
-        },
-        warm: "hsl(var(--warm))",
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         sidebar: {

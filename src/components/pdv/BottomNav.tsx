@@ -1,12 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Package, Users, BarChart3, Settings } from "lucide-react";
+import { ShoppingCart, Package, Users, BarChart3, Settings } from "lucide-react";
 
 const NAV_ITEMS = [
-  { path: "/home", label: "Vendas", icon: Home },
+  { path: "/home", label: "Vendas", icon: ShoppingCart },
   { path: "/stock", label: "Estoque", icon: Package },
   { path: "/fiado", label: "Fiado", icon: Users },
   { path: "/dashboard", label: "Painel", icon: BarChart3 },
-  { path: "/admin", label: "Admin", icon: Settings },
+  { path: "/admin", label: "Config", icon: Settings },
 ];
 
 const BottomNav = () => {
@@ -14,7 +14,7 @@ const BottomNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-2 pb-2 pt-1 z-50 flex items-center justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-2 pb-2 pt-1 z-50 flex items-center justify-around md:hidden">
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;

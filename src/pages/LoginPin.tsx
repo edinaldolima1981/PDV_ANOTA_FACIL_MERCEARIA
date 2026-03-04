@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Delete, ShieldCheck, User } from "lucide-react";
+import { Store, Delete, ShieldCheck, User } from "lucide-react";
 
 const ADMIN_PIN = "1234";
 const EMPLOYEE_PIN = "0000";
@@ -53,8 +53,8 @@ const LoginPin = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10">
       {/* Logo & Brand */}
       <div className="animate-fade-up flex flex-col items-center mb-10">
-        <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center shadow-medium mb-4">
-          <Leaf className="w-10 h-10 text-primary-foreground" />
+        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-medium mb-4">
+          <Store className="w-8 h-8 text-primary-foreground" />
         </div>
         <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">
           Empório Orgânico
@@ -65,13 +65,11 @@ const LoginPin = () => {
       </div>
 
       {/* PIN Dots */}
-      <div
-        className={`flex gap-4 mb-8 ${error ? "animate-shake" : ""}`}
-      >
+      <div className={`flex gap-4 mb-8 ${error ? "animate-shake" : ""}`}>
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className={`w-4 h-4 rounded-full transition-all duration-200 ${
+            className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
               i < pin.length
                 ? success
                   ? "bg-success scale-110"
@@ -84,7 +82,7 @@ const LoginPin = () => {
 
       {/* Success Feedback */}
       {success && (
-        <div className="animate-fade-up flex items-center gap-2 mb-4 px-4 py-2 rounded-xl bg-success/10">
+        <div className="animate-fade-up flex items-center gap-2 mb-4 px-4 py-2 rounded-lg bg-success/10">
           {success === "admin" ? (
             <ShieldCheck className="w-4 h-4 text-success" />
           ) : (
