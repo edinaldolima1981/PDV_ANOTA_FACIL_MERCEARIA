@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ScanBarcode, ShoppingCart, User } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/data/products";
+import { useProducts } from "@/contexts/ProductContext";
 import type { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import PosLayout from "@/components/pdv/PosLayout";
@@ -14,9 +14,10 @@ const SalesHome = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const { addItem, totalItems, totalPrice } = useCart();
+  const { products } = useProducts();
   const navigate = useNavigate();
 
-  const filteredProducts = MOCK_PRODUCTS.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       selectedCategory === "todos" || p.category === selectedCategory;
@@ -25,11 +26,8 @@ const SalesHome = () => {
 
   return (
     <PosLayout>
-      {/* Main product area */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="bg-card border-b border-border px-5 py-3 flex items-center gap-4 flex-shrink-0">
-          {/* Search */}
           <div className="relative flex-1 max-w-lg">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -43,8 +41,6 @@ const SalesHome = () => {
               <ScanBarcode className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
-
-          {/* Operator info */}
           <div className="hidden sm:flex items-center gap-2 ml-auto">
             <span className="text-xs text-muted-foreground font-body">Operador</span>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary">
@@ -56,12 +52,10 @@ const SalesHome = () => {
           </div>
         </header>
 
-        {/* Categories */}
         <div className="px-5 py-3 border-b border-border bg-card flex-shrink-0">
           <CategoryBar selected={selectedCategory} onSelect={setSelectedCategory} />
         </div>
 
-        {/* Products Grid */}
         <div className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {filteredProducts.map((product) => (
@@ -83,26 +77,20 @@ const SalesHome = () => {
           )}
         </div>
 
-        {/* Mobile Cart FAB */}
         {totalItems > 0 && (
           <button
             onClick={() => navigate("/cart")}
             className="lg:hidden fixed bottom-20 md:bottom-6 right-4 h-14 bg-primary text-primary-foreground rounded-2xl shadow-elevated flex items-center gap-3 px-5 active:scale-[0.98] transition-all z-40 animate-fade-up"
           >
             <ShoppingCart className="w-5 h-5" />
-            <span className="font-body font-semibold text-sm">
-              {totalItems}
-            </span>
+            <span className="font-body font-semibold text-sm">{totalItems}</span>
             <span className="font-body font-bold text-sm">
               R$ {totalPrice.toFixed(2).replace(".", ",")}
             </span>
           </button>
         )}
       </main>
-
-      {/* Desktop Cart Panel */}
       <CartPanel />
-
     </PosLayout>
   );
 };

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode } from "lucide-react";
+import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
 import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
 import PosLayout from "@/components/pdv/PosLayout";
 import AdminAuthModal from "@/components/pdv/AdminAuthModal";
+import CategoryManagerModal from "@/components/pdv/CategoryManagerModal";
 
 interface Employee {
   id: string;
@@ -84,6 +85,7 @@ const AdminPage = () => {
 
   const menuItems = [
     { id: "loja", icon: Store, label: "Dados da Loja", description: "Nome, endereço e horário" },
+    { id: "categorias", icon: Tag, label: "Categorias", description: "Gerenciar categorias de produtos" },
     { id: "equipe", icon: Users, label: "Equipe", description: "Gerenciar colaboradores e PINs" },
     { id: "permissoes", icon: Shield, label: "Permissões e Limites", description: "Limites de crédito dos clientes" },
   ];
@@ -326,6 +328,10 @@ const AdminPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {activeSection === "categorias" && (
+        <CategoryManagerModal onClose={() => setActiveSection(null)} />
       )}
 
       {showAdminAuth && (
