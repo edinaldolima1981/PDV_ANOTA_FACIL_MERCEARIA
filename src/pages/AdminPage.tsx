@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag, Bell } from "lucide-react";
+import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag, Bell, UtensilsCrossed, Wine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
 import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
@@ -86,6 +86,7 @@ const AdminPage = () => {
 
   const menuItems = [
     { id: "loja", icon: Store, label: "Dados da Loja", description: "Nome, endereço e horário" },
+    { id: "modulos", icon: UtensilsCrossed, label: "Módulos", description: "Ativar Restaurante e Bar" },
     { id: "categorias", icon: Tag, label: "Categorias", description: "Gerenciar categorias de produtos" },
     { id: "cobrancas", icon: Bell, label: "Cobranças Automáticas", description: "Lembretes de pagamento via WhatsApp" },
     { id: "equipe", icon: Users, label: "Equipe", description: "Gerenciar colaboradores e PINs" },
@@ -327,6 +328,57 @@ const AdminPage = () => {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Módulos Modal */}
+      {activeSection === "modulos" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setActiveSection(null)}>
+          <div className="bg-card w-full max-w-md rounded-2xl p-6 shadow-elevated animate-fade-up mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-lg font-bold text-foreground">Módulos</h3>
+              <button onClick={() => setActiveSection(null)} className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground font-body mb-4">Ative ou desative módulos extras do sistema.</p>
+
+            <div className="space-y-3">
+              {/* Restaurante */}
+              <div className="flex items-center gap-4 p-4 bg-background rounded-xl border border-border">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <UtensilsCrossed className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground font-body">Restaurante</p>
+                  <p className="text-xs text-muted-foreground font-body">Mesas, comandas e pedidos</p>
+                </div>
+                <button
+                  onClick={() => store.updateStore({ moduleRestaurante: !store.moduleRestaurante })}
+                  className={`w-12 h-7 rounded-full transition-colors relative ${store.moduleRestaurante ? "bg-primary" : "bg-muted"}`}
+                >
+                  <div className={`w-5 h-5 bg-card rounded-full shadow absolute top-1 transition-all ${store.moduleRestaurante ? "right-1" : "left-1"}`} />
+                </button>
+              </div>
+
+              {/* Bar */}
+              <div className="flex items-center gap-4 p-4 bg-background rounded-xl border border-border">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Wine className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground font-body">Bar</p>
+                  <p className="text-xs text-muted-foreground font-body">Mesas, comandas e pedidos</p>
+                </div>
+                <button
+                  onClick={() => store.updateStore({ moduleBar: !store.moduleBar })}
+                  className={`w-12 h-7 rounded-full transition-colors relative ${store.moduleBar ? "bg-primary" : "bg-muted"}`}
+                >
+                  <div className={`w-5 h-5 bg-card rounded-full shadow absolute top-1 transition-all ${store.moduleBar ? "right-1" : "left-1"}`} />
+                </button>
+              </div>
             </div>
           </div>
         </div>

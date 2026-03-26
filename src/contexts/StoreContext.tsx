@@ -10,6 +10,8 @@ interface StoreSettings {
   ownerName: string;
   pixKey: string;
   pixKeyType: PixKeyType;
+  moduleRestaurante: boolean;
+  moduleBar: boolean;
 }
 
 interface StoreContextType extends StoreSettings {
@@ -80,6 +82,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     ownerName: "",
     pixKey: "95193258300",
     pixKeyType: "cpf",
+    moduleRestaurante: false,
+    moduleBar: false,
   });
 
   const updateStore = useCallback((data: Partial<StoreSettings>) => {

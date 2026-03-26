@@ -7,6 +7,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { CustomerProvider } from "@/contexts/CustomerContext";
 import { StoreProvider } from "@/contexts/StoreContext";
 import { ProductProvider } from "@/contexts/ProductContext";
+import { TableProvider } from "@/contexts/TableContext";
 import LoginPin from "./pages/LoginPin";
 import SalesHome from "./pages/SalesHome";
 import CartPage from "./pages/CartPage";
@@ -17,6 +18,8 @@ import FiadoPage from "./pages/FiadoPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
 import ContasReceberPage from "./pages/ContasReceberPage";
+import RestaurantPage from "./pages/RestaurantPage";
+import BarPage from "./pages/BarPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +31,7 @@ const App = () => (
         <CustomerProvider>
           <StoreProvider>
           <ProductProvider>
+          <TableProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -42,9 +46,12 @@ const App = () => (
                 <Route path="/contas-receber" element={<ContasReceberPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/restaurante" element={<RestaurantPage />} />
+                <Route path="/bar" element={<BarPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+          </TableProvider>
           </ProductProvider>
           </StoreProvider>
         </CustomerProvider>
