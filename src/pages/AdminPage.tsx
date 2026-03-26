@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag, Bell } from "lucide-react";
+import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag, Bell, UtensilsCrossed, Wine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
 import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
@@ -86,6 +86,7 @@ const AdminPage = () => {
 
   const menuItems = [
     { id: "loja", icon: Store, label: "Dados da Loja", description: "Nome, endereço e horário" },
+    { id: "modulos", icon: UtensilsCrossed, label: "Módulos", description: "Ativar Restaurante e Bar" },
     { id: "categorias", icon: Tag, label: "Categorias", description: "Gerenciar categorias de produtos" },
     { id: "cobrancas", icon: Bell, label: "Cobranças Automáticas", description: "Lembretes de pagamento via WhatsApp" },
     { id: "equipe", icon: Users, label: "Equipe", description: "Gerenciar colaboradores e PINs" },
