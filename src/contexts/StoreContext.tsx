@@ -86,6 +86,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     pixKeyType: "cpf",
     moduleRestaurante: false,
     moduleBar: false,
+    storeBanner: "",
   });
 
   const updateStore = useCallback((data: Partial<StoreSettings>) => {
@@ -97,10 +98,14 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     setSettings((prev) => ({ ...prev, pixKey: key, pixKeyType: type }));
   }, []);
 
+  const setStoreBanner = useCallback((banner: string) => {
+    setSettings((prev) => ({ ...prev, storeBanner: banner }));
+  }, []);
+
   const pixKeyFormatted = formatPixKey(settings.pixKey, settings.pixKeyType);
 
   return (
-    <StoreContext.Provider value={{ ...settings, updateStore, setPixKey, pixKeyFormatted }}>
+    <StoreContext.Provider value={{ ...settings, updateStore, setPixKey, setStoreBanner, pixKeyFormatted }}>
       {children}
     </StoreContext.Provider>
   );
