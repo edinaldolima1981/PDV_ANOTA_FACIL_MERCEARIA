@@ -18,6 +18,54 @@ const getStockStatus = (stock: number): { label: string; color: string; bg: stri
   return { label: "Normal", color: "text-success", bg: "bg-success/10" };
 };
 
+interface SaleModeSelectorProps {
+  value: SaleMode;
+  onChange: (m: SaleMode) => void;
+}
+
+const SaleModeSelector = ({ value, onChange }: SaleModeSelectorProps) => (
+  <div>
+    <label className="text-xs text-muted-foreground font-body mb-1.5 block">Como é vendido?</label>
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => onChange("unit")}
+        className={`p-3 rounded-xl border-2 transition-all text-left ${
+          value === "unit"
+            ? "border-primary bg-primary/5"
+            : "border-border bg-background hover:border-primary/40"
+        }`}
+      >
+        <div className="flex items-center gap-1.5 mb-1">
+          <Package className="w-4 h-4 text-foreground" />
+          <span className="text-sm font-bold text-foreground font-body">Por unidade</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground font-body leading-tight">
+          Vai direto ao carrinho. Ex.: refrigerante, pão, sabonete.
+        </p>
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("weight")}
+        className={`p-3 rounded-xl border-2 transition-all text-left ${
+          value === "weight"
+            ? "border-primary bg-primary/5"
+            : "border-border bg-background hover:border-primary/40"
+        }`}
+      >
+        <div className="flex items-center gap-1.5 mb-1">
+          <Scale className="w-4 h-4 text-foreground" />
+          <span className="text-sm font-bold text-foreground font-body">Por peso/medida</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground font-body leading-tight">
+          Pede o peso na hora. Ex.: carnes, frutas a granel, queijos.
+        </p>
+      </button>
+    </div>
+  </div>
+);
+
+
 const StockPage = () => {
   const { products, categories, units, updateProduct, deleteProduct, addProduct, addUnit, getUnitShort } = useProducts();
   const [search, setSearch] = useState("");
