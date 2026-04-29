@@ -58,6 +58,7 @@ interface ProductContextType {
   deleteUnit: (id: string) => void;
   getUnitShort: (id: string) => string;
   isWeightUnit: (id: string) => boolean;
+  sellsByWeight: (product: Product) => boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
