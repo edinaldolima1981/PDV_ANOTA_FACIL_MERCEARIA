@@ -65,7 +65,7 @@ const SalesHome = () => {
                 key={product.id}
                 product={product}
                 onAdd={(p) => {
-                  if (isWeightUnit(p.unit)) {
+                  if (sellsByWeight(p)) {
                     setWeightProduct(p);
                   } else {
                     addItem(p, 1);
