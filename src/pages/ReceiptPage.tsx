@@ -11,7 +11,9 @@ import { toast } from "sonner";
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { storeName, pixKey, pixKeyType, pixKeyFormatted } = useStore();
-  const { getUnitShort } = useProducts();
+  const { getUnitShort, isWeightUnit } = useProducts();
+  const fmtQty = (unit: string, qty: number) =>
+    isWeightUnit(unit) ? qty.toFixed(3).replace(".", ",") : String(qty);
   const navigate = useNavigate();
   const location = useLocation();
   const paymentMethod = (location.state as any)?.paymentMethod || "";
