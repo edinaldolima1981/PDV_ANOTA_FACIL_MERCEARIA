@@ -1,15 +1,32 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PosLayout from "@/components/pdv/PosLayout";
 import TableMap from "@/components/pdv/TableMap";
 import TableOrderPanel from "@/components/pdv/TableOrderPanel";
+import OpenTableModal from "@/components/pdv/OpenTableModal";
 import StoreBanner from "@/components/pdv/StoreBanner";
 import { useHappyHour } from "@/contexts/HappyHourContext";
 import type { Table } from "@/contexts/TableContext";
 
 const BarPage = () => {
+  const navigate = useNavigate();
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const [openingTable, setOpeningTable] = useState<Table | null>(null);
   const { isActiveNow, config } = useHappyHour();
   const happy = isActiveNow();
+
+  const handleSelectTable = (table: Table) => {
+    if (table.status === "free") {
+      // Mesa livre → abrir modal "abrir mesa" e depois ir para tela de pedidos
+      setOpeningTable(table);
+    } else if (table.status === "occupied" || table.status === "awaiting_payment") {
+      // Mesa ativa → ir direto para tela de pedidos (split-screen)
+      navigate(`/mesa/${table.id}`);
+    } else {
+      // Reservada/suja → painel lateral antigo (gestão rápida)
+      setSelectedTable(table);
+    }
+  };
 
   return (
     <PosLayout>
@@ -27,12 +44,23 @@ const BarPage = () => {
             </div>
           )}
         </header>
-        <TableMap module="bar" onSelectTable={setSelectedTable} />
+        <TableMap module="bar" onSelectTable={handleSelectTable} />
       </div>
       {selectedTable && (
         <TableOrderPanel
           table={selectedTable}
           onClose={() => setSelectedTable(null)}
+        />
+      )}
+      {openingTable && (
+        <OpenTableModal
+          table={openingTable}
+          onClose={() => setOpeningTable(null)}
+          onOpened={() => {
+            const id = openingTable.id;
+            setOpeningTable(null);
+            navigate(`/mesa/${id}`);
+          }}
         />
       )}
     </PosLayout>
