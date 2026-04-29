@@ -23,6 +23,7 @@ import AdminPage from "./pages/AdminPage";
 import ContasReceberPage from "./pages/ContasReceberPage";
 import RestaurantPage from "./pages/RestaurantPage";
 import BarPage from "./pages/BarPage";
+import TableOrderPage from "./pages/TableOrderPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/restaurante" element={<RestaurantPage />} />
                 <Route path="/bar" element={<BarPage />} />
+                <Route path="/mesa/:tableId" element={<TableOrderPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
