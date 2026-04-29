@@ -34,7 +34,7 @@ const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   );
 
   const handleAddProduct = (product: typeof products[0]) => {
-    if (isWeightUnit(product.unit)) {
+    if (sellsByWeight(product)) {
       setWeightProduct(product);
       return;
     }
