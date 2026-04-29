@@ -65,8 +65,12 @@ const SalesHome = () => {
                 key={product.id}
                 product={product}
                 onAdd={(p) => {
-                  addItem(p, 1);
-                  toast.success(`${p.name} adicionado ao carrinho`);
+                  if (isWeightUnit(p.unit)) {
+                    setWeightProduct(p);
+                  } else {
+                    addItem(p, 1);
+                    toast.success(`${p.name} adicionado ao carrinho`);
+                  }
                 }}
               />
             ))}
