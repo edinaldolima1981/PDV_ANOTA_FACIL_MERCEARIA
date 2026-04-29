@@ -98,6 +98,17 @@ const SalesHome = () => {
         )}
       </main>
       <CartPanel />
+      {weightProduct && (
+        <WeightModal
+          product={weightProduct}
+          onClose={() => setWeightProduct(null)}
+          onConfirm={(weight) => {
+            addItem(weightProduct, weight);
+            toast.success(`${weightProduct.name} adicionado (${weight.toFixed(3).replace(".", ",")})`);
+            setWeightProduct(null);
+          }}
+        />
+      )}
     </PosLayout>
   );
 };
