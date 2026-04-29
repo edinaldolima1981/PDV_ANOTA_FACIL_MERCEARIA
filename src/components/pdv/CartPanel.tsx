@@ -9,7 +9,7 @@ import type { Product } from "@/data/products";
 
 const CartPanel = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
-  const { getUnitShort, isWeightUnit } = useProducts();
+  const { getUnitShort, sellsByWeight } = useProducts();
   const navigate = useNavigate();
   const [editing, setEditing] = useState<{ product: Product; quantity: number } | null>(null);
 
