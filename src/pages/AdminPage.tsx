@@ -8,6 +8,7 @@ import PosLayout from "@/components/pdv/PosLayout";
 import StoreBanner from "@/components/pdv/StoreBanner";
 import AdminAuthModal from "@/components/pdv/AdminAuthModal";
 import CategoryManagerModal from "@/components/pdv/CategoryManagerModal";
+import BarSettingsModal from "@/components/pdv/BarSettingsModal";
 import { ReminderSettingsModal } from "@/components/pdv/BillingReminders";
 import { toast } from "sonner";
 
@@ -89,6 +90,7 @@ const AdminPage = () => {
   const menuItems = [
     { id: "loja", icon: Store, label: "Dados da Loja", description: "Nome, endereço e horário" },
     { id: "modulos", icon: UtensilsCrossed, label: "Módulos", description: "Ativar Restaurante e Bar" },
+    { id: "bar", icon: Wine, label: "Bar / Garçons / Happy Hour", description: "Garçons, comissões, taxas e descontos" },
     { id: "categorias", icon: Tag, label: "Categorias", description: "Gerenciar categorias de produtos" },
     { id: "cobrancas", icon: Bell, label: "Cobranças Automáticas", description: "Lembretes de pagamento via WhatsApp" },
     { id: "equipe", icon: Users, label: "Equipe", description: "Gerenciar colaboradores e PINs" },
@@ -451,6 +453,10 @@ const AdminPage = () => {
 
       {activeSection === "cobrancas" && (
         <ReminderSettingsModal onClose={() => setActiveSection(null)} />
+      )}
+
+      {activeSection === "bar" && (
+        <BarSettingsModal onClose={() => setActiveSection(null)} />
       )}
 
       {showAdminAuth && (
