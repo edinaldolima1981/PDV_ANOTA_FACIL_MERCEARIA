@@ -397,6 +397,7 @@ const StockPage = () => {
                 <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
+              <SaleModeSelector value={editSaleMode} onChange={handleEditSaleModeChange} />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-body mb-1 block">Preço (R$)</label>
