@@ -67,7 +67,7 @@ const ReceiptPage = () => {
     try {
       const itemsList = items.map(({ product, quantity }) => {
         const unitLabel = getUnitShort(product.unit);
-        const qty = product.unit === "kg" ? quantity.toFixed(1) : String(quantity);
+        const qty = fmtQty(product.unit, quantity);
         return `• ${product.name} x${qty} ${unitLabel} - ${fmt(product.price * quantity)}`;
       }).join("\n");
       const msg = encodeURIComponent(
