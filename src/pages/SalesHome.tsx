@@ -8,13 +8,15 @@ import PosLayout from "@/components/pdv/PosLayout";
 import CategoryBar from "@/components/pdv/CategoryBar";
 import ProductCard from "@/components/pdv/ProductCard";
 import CartPanel from "@/components/pdv/CartPanel";
+import WeightModal from "@/components/pdv/WeightModal";
 import { toast } from "sonner";
 
 const SalesHome = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todos");
+  const [weightProduct, setWeightProduct] = useState<Product | null>(null);
   const { addItem, totalItems, totalPrice } = useCart();
-  const { products } = useProducts();
+  const { products, isWeightUnit } = useProducts();
   const navigate = useNavigate();
 
   const filteredProducts = products.filter((p) => {
