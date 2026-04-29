@@ -1,13 +1,17 @@
-import { Minus, Plus, Trash2, UserPlus, Printer, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Minus, Plus, Trash2, UserPlus, Printer, ChevronRight, Scale } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/contexts/ProductContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import WeightModal from "@/components/pdv/WeightModal";
+import type { Product } from "@/data/products";
 
 const CartPanel = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
-  const { getUnitShort } = useProducts();
+  const { getUnitShort, isWeightUnit } = useProducts();
   const navigate = useNavigate();
+  const [editing, setEditing] = useState<{ product: Product; quantity: number } | null>(null);
 
   return (
     <aside className="hidden lg:flex w-[340px] xl:w-[380px] bg-card border-l border-border flex-col flex-shrink-0">
