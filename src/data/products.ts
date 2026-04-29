@@ -1,3 +1,5 @@
+export type SaleMode = "unit" | "weight";
+
 export interface Product {
   id: string;
   name: string;
@@ -6,6 +8,8 @@ export interface Product {
   category: string;
   image?: string;
   stock: number;
+  /** Define como o produto é vendido. "weight" abre modal de pesagem no PDV. */
+  saleMode?: SaleMode;
 }
 
 export interface CartItem {
