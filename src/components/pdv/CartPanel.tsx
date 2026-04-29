@@ -30,8 +30,10 @@ const CartPanel = () => {
         ) : (
           items.map(({ product, quantity }) => {
             const unitLabel = getUnitShort(product.unit);
-            const step = product.unit === "kg" ? 0.1 : 1;
+            const isWeight = isWeightUnit(product.unit);
+            const step = isWeight ? 0.1 : 1;
             const subtotal = product.price * quantity;
+            const qtyDisplay = isWeight ? quantity.toFixed(3).replace(".", ",") : String(quantity);
 
             return (
               <div key={product.id} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
@@ -44,16 +46,29 @@ const CartPanel = () => {
                   </p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <button
-                      onClick={() => updateQuantity(product.id, Math.round((quantity - step) * 10) / 10)}
+                      onClick={() => updateQuantity(product.id, Math.round((quantity - step) * 1000) / 1000)}
                       className="w-6 h-6 rounded-md bg-secondary flex items-center justify-center hover:bg-muted transition-colors"
                     >
                       <Minus className="w-3 h-3 text-foreground" />
                     </button>
-                    <span className="text-xs font-semibold text-foreground font-body min-w-[32px] text-center">
-                      {product.unit === "kg" ? quantity.toFixed(1) : quantity}
-                    </span>
+                    {isWeight ? (
+                      <button
+                        onClick={() => setEditing({ product, quantity })}
+                        className="flex items-center gap-1 px-2 h-6 rounded-md bg-secondary hover:bg-muted transition-colors"
+                        title="Digitar peso"
+                      >
+                        <Scale className="w-3 h-3 text-primary" />
+                        <span className="text-xs font-semibold text-foreground font-body">
+                          {qtyDisplay} {unitLabel}
+                        </span>
+                      </button>
+                    ) : (
+                      <span className="text-xs font-semibold text-foreground font-body min-w-[32px] text-center">
+                        {qtyDisplay}
+                      </span>
+                    )}
                     <button
-                      onClick={() => updateQuantity(product.id, Math.round((quantity + step) * 10) / 10)}
+                      onClick={() => updateQuantity(product.id, Math.round((quantity + step) * 1000) / 1000)}
                       className="w-6 h-6 rounded-md bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
                     >
                       <Plus className="w-3 h-3 text-primary-foreground" />
