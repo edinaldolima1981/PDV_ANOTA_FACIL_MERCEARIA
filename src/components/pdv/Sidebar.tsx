@@ -22,9 +22,14 @@ const Sidebar = () => {
     <aside className="hidden md:flex w-[72px] bg-sidebar flex-col items-center py-5 gap-1 border-r border-sidebar-border flex-shrink-0">
       <button
         onClick={() => navigate("/home")}
-        className="w-10 h-10 rounded-xl bg-sidebar-primary flex items-center justify-center mb-6"
+        className="w-12 h-12 rounded-xl bg-sidebar-primary flex items-center justify-center mb-6 overflow-hidden"
+        title={store.storeName}
       >
-        <Store className="w-5 h-5 text-sidebar-primary-foreground" />
+        {store.storeBanner ? (
+          <img src={store.storeBanner} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <Store className="w-5 h-5 text-sidebar-primary-foreground" />
+        )}
       </button>
 
       <nav className="flex flex-col gap-1 flex-1">

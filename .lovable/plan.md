@@ -1,64 +1,62 @@
-## Determinar "vendido por peso" no cadastro do produto
+## Banner da loja no cabeçalho
 
-Hoje, o sistema decide se abre o modal de pesagem **olhando para a unidade** (kg, g, L, mL). Isso é frágil: o operador pode cadastrar um produto em "kg" só por costume, ou ter unidades customizadas que confundem o sistema.
+Adicionar suporte a um **banner/logo personalizado da loja** que aparece no cabeçalho do PDV (e demais telas), configurável pelo lojista nas Configurações. Se nenhum banner for enviado, o cabeçalho continua exatamente como está hoje (sem atrapalhar o layout atual).
 
-A nova lógica torna isso **explícito no produto**: ao cadastrar/editar, o operador escolhe **como o produto é vendido** (por unidade ou por peso/medida). O sistema usa essa flag para decidir o fluxo no PDV.
+### O que o usuário verá
 
-### O que muda
+1. **Em Admin → Configurações da Loja**
+   - Novo campo "Banner / Logo da Loja"
+   - Botão "Enviar imagem" (aceita PNG, JPG, WEBP)
+   - Preview da imagem atual com botão "Remover"
+   - Dica de tamanho recomendado (ex: 600x120px, até 1MB)
 
-**1. Modelo de dados (`Product`)**
-Adicionar campo `saleMode: "unit" | "weight"` em `src/data/products.ts`.
-- `"unit"` → adicionado direto ao carrinho com quantidade 1 (ou +/- inteiros)
-- `"weight"` → abre o modal de pesagem para digitar a quantidade
+2. **No cabeçalho das telas (PDV, Restaurante, Bar, Estoque, etc.)**
+   - Se houver banner: exibe a imagem à esquerda do título, com altura limitada (~40px no desktop, ~32px no mobile) para não aumentar o cabeçalho
+   - Se não houver banner: cabeçalho continua idêntico ao atual
+   - Mantém responsividade — em telas pequenas o banner reduz proporcionalmente
 
-Migração dos produtos mock: produtos cadastrados em `kg` ou `L` recebem `saleMode: "weight"` automaticamente; demais ficam `"unit"`. Backward-compat: se o campo não existir no produto, cair no helper `isWeightUnit(unit)` como hoje.
+3. **Tela de Login (PIN)**
+   - Se houver banner, substitui o ícone genérico de loja pelo banner da loja
+   - Mantém o nome da loja abaixo
 
-**2. Cadastro / edição de produto (`StockPage.tsx`)**
-Adicionar um seletor visual no modal **Adicionar produto** e no modal **Editar produto**:
+4. **Recibo (impressão/WhatsApp)**
+   - Banner aparece no topo do recibo, centralizado, acima do nome da loja
 
-```
-Como este produto é vendido?
-[ 📦 Por unidade ]   [ ⚖️ Por peso/medida ]
-```
+### Detalhes técnicos
 
-- Dois cards/botões grandes lado a lado, mutuamente exclusivos.
-- Texto de ajuda sob cada um:
-  - **Por unidade**: "Vai direto ao carrinho. Ex.: refrigerante, pão, sabonete."
-  - **Por peso/medida**: "Pede o peso na hora da venda. Ex.: carnes, frutas a granel, queijos."
-- Ao escolher **Por peso/medida**, o seletor de unidade já filtra/sugere unidades de peso (kg, g, L, mL).
-- Ao escolher **Por unidade**, sugere un, pç, cx, dz...
-- O operador ainda pode escolher qualquer unidade, mas com defaults inteligentes.
+- **StoreContext** (`src/contexts/StoreContext.tsx`)
+  - Adicionar campo `storeBanner: string` (data URL base64) ao `StoreSettings`
+  - Função `setStoreBanner(file: File | null)` que converte para base64 e persiste
+  - Persistir junto com as demais configurações da loja
 
-**3. PDV (`SalesHome.tsx`, `TableOrderPanel.tsx`)**
-Substituir a checagem `isWeightUnit(product.unit)` por:
-```ts
-const sellsByWeight = product.saleMode === "weight" 
-  || (product.saleMode === undefined && isWeightUnit(product.unit)); // fallback
-```
-- Se `sellsByWeight` → abre `WeightModal`
-- Senão → adiciona direto ao carrinho
+- **Novo componente** `src/components/pdv/StoreBanner.tsx`
+  - Props: `size?: "sm" | "md" | "lg"`, `className?`
+  - Renderiza `<img>` com `object-contain`, ou `null` se não houver banner
+  - Reutilizado em todos os cabeçalhos
 
-**4. Indicador visual nos cards de produto (`ProductCard.tsx`)**
-Adicionar um pequeno badge `⚖️` no canto do card quando `saleMode === "weight"`, para o operador saber que clicar vai abrir o modal de pesagem (boa para treinamento e clareza).
+- **Sidebar** (`src/components/pdv/Sidebar.tsx`)
+  - Substituir/complementar o título com o `<StoreBanner size="md" />` no topo
+  - Fallback: nome da loja em texto (atual)
 
-**5. Carrinho (`CartPanel.tsx`, `CartPage.tsx`)**
-Mesma checagem: usar `product.saleMode` em vez de `isWeightUnit(product.unit)` para mostrar o ícone de balança e abrir o modal ao editar.
+- **Cabeçalhos de página** (`SalesHome.tsx`, `RestaurantPage.tsx`, `BarPage.tsx`, `StockPage.tsx`, etc.)
+  - Adicionar `<StoreBanner size="sm" />` à esquerda do título da página (apenas quando existir)
 
-**6. Recibo (`ReceiptPage.tsx`)**
-Formatação de quantidade também passa a usar `saleMode` (3 casas decimais para peso, inteiro para unidade).
+- **AdminPage** (`src/pages/AdminPage.tsx`)
+  - Nova seção dentro de "Configurações da Loja":
+    - Input `<input type="file" accept="image/*">` escondido + botão estilizado
+    - Validação: máx 1MB, formatos PNG/JPG/WEBP
+    - Preview com botão remover
+    - Toast de sucesso/erro
 
-### Arquivos alterados
-- editado: `src/data/products.ts` (adiciona `saleMode` em `Product` e nos mocks)
-- editado: `src/pages/StockPage.tsx` (seletor "Como é vendido?" nos modais de add/edit + sugestão de unidade)
-- editado: `src/contexts/ProductContext.tsx` (helper `sellsByWeight(product)` único e centralizado)
-- editado: `src/pages/SalesHome.tsx`
-- editado: `src/components/pdv/ProductCard.tsx` (badge ⚖️)
-- editado: `src/components/pdv/CartPanel.tsx`
-- editado: `src/pages/CartPage.tsx`
-- editado: `src/components/pdv/TableOrderPanel.tsx`
-- editado: `src/pages/ReceiptPage.tsx`
+- **LoginPin** (`src/pages/LoginPin.tsx`)
+  - Substituir o div com ícone `<Store />` pelo `<StoreBanner size="lg" />` quando existir
 
-### Detalhes de UX
-- Default ao criar novo produto: **Por unidade** (mais comum em mercearia).
-- Editar um produto existente: respeita o `saleMode` atual (ou infere pela unidade se ainda não existe).
-- O `WeightModal` continua igual; só a forma de decidir quando abri-lo muda.
+- **ReceiptPage** (`src/pages/ReceiptPage.tsx`)
+  - Adicionar banner no topo do recibo (centralizado, max-height controlado)
+
+### Garantias de "não atrapalhar"
+
+- Sem banner cadastrado → **zero mudança visual** no app
+- Altura máxima fixa por breakpoint → cabeçalho não cresce
+- `object-contain` → preserva proporção sem distorcer
+- Fallback gracioso em todas as telas

@@ -14,7 +14,7 @@ const LoginPin = () => {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState<UserRole>(null);
   const navigate = useNavigate();
-  const { storeName } = useStore();
+  const { storeName, storeBanner } = useStore();
 
   const handleDigit = useCallback((digit: string) => {
     if (pin.length >= 4) return;
@@ -55,9 +55,17 @@ const LoginPin = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10">
       {/* Logo & Brand */}
       <div className="animate-fade-up flex flex-col items-center mb-10">
-        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-medium mb-4">
-          <Store className="w-8 h-8 text-primary-foreground" />
-        </div>
+        {storeBanner ? (
+          <img
+            src={storeBanner}
+            alt={storeName}
+            className="max-h-24 max-w-[280px] w-auto object-contain mb-4"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-medium mb-4">
+            <Store className="w-8 h-8 text-primary-foreground" />
+          </div>
+        )}
         <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">
           {storeName}
         </h1>
