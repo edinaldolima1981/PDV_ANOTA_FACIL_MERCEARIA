@@ -23,6 +23,7 @@ const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   const [splitParts, setSplitParts] = useState(2);
   const [customerName, setCustomerName] = useState(table.customerName || "");
   const [showReserve, setShowReserve] = useState(false);
+  const [weightProduct, setWeightProduct] = useState<Product | null>(null);
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
   const total = getTableTotal(table.id);
