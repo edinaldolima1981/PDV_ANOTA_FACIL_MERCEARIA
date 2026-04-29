@@ -330,6 +330,13 @@ ${store.pixKey ? `\nPix: ${store.pixKeyFormatted}` : ""}
           )}
         </div>
       </div>
+      {weightProduct && (
+        <WeightModal
+          product={weightProduct}
+          onClose={() => setWeightProduct(null)}
+          onConfirm={confirmWeightAdd}
+        />
+      )}
     </div>
   );
 };
