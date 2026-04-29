@@ -8,16 +8,26 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onAdd }: ProductCardProps) => {
-  const { categories, getUnitShort } = useProducts();
+  const { categories, getUnitShort, sellsByWeight } = useProducts();
   const unitLabel = getUnitShort(product.unit);
   const category = categories.find((c) => c.id === product.category);
   const emoji = category?.icon || "📦";
+  const byWeight = sellsByWeight(product);
 
   return (
     <button
       onClick={() => onAdd(product)}
-      className="bg-card rounded-xl p-4 flex flex-col gap-3 border border-border hover:border-primary/40 hover:shadow-medium transition-all duration-200 active:scale-[0.98] text-left group"
+      className="bg-card rounded-xl p-4 flex flex-col gap-3 border border-border hover:border-primary/40 hover:shadow-medium transition-all duration-200 active:scale-[0.98] text-left group relative"
     >
+      {byWeight && (
+        <div
+          className="absolute top-2 right-2 z-10 flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-primary/15 text-primary text-[10px] font-semibold font-body"
+          title="Vendido por peso"
+        >
+          <Scale className="w-3 h-3" />
+          Peso
+        </div>
+      )}
       <div className="w-full aspect-[4/3] rounded-lg bg-secondary flex items-center justify-center text-3xl overflow-hidden">
         {product.image ? (
           <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
