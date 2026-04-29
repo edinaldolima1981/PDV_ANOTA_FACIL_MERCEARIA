@@ -8,6 +8,9 @@ import { CustomerProvider } from "@/contexts/CustomerContext";
 import { StoreProvider } from "@/contexts/StoreContext";
 import { ProductProvider } from "@/contexts/ProductContext";
 import { TableProvider } from "@/contexts/TableContext";
+import { WaiterProvider } from "@/contexts/WaiterContext";
+import { HappyHourProvider } from "@/contexts/HappyHourContext";
+import { BarSettingsProvider } from "@/contexts/BarSettingsContext";
 import LoginPin from "./pages/LoginPin";
 import SalesHome from "./pages/SalesHome";
 import CartPage from "./pages/CartPage";
@@ -31,6 +34,9 @@ const App = () => (
         <CustomerProvider>
           <StoreProvider>
           <ProductProvider>
+          <BarSettingsProvider>
+          <HappyHourProvider>
+          <WaiterProvider>
           <TableProvider>
             <Toaster />
             <Sonner />
@@ -52,6 +58,9 @@ const App = () => (
               </Routes>
             </BrowserRouter>
           </TableProvider>
+          </WaiterProvider>
+          </HappyHourProvider>
+          </BarSettingsProvider>
           </ProductProvider>
           </StoreProvider>
         </CustomerProvider>
