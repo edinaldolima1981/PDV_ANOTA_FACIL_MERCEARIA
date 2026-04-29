@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
-  const { storeName, pixKey, pixKeyType, pixKeyFormatted } = useStore();
+  const { storeName, pixKey, pixKeyType, pixKeyFormatted, storeBanner } = useStore();
   const { getUnitShort, sellsByWeight } = useProducts();
   const fmtQty = (product: any, qty: number) =>
     sellsByWeight(product) ? qty.toFixed(3).replace(".", ",") : String(qty);
@@ -40,6 +40,7 @@ const ReceiptPage = () => {
         .center{text-align:center}.line{border-top:1px dashed #000;margin:8px 0}
         .bold{font-weight:bold}.row{display:flex;justify-content:space-between;margin:2px 0}</style></head>
         <body>
+          ${storeBanner ? `<div class="center"><img src="${storeBanner}" style="max-height:60px;max-width:240px;margin-bottom:4px" /></div>` : ''}
           <div class="center bold" style="font-size:14px;margin-bottom:2px">${storeName}</div>
           <div class="center bold">COMPROVANTE DE PAGAMENTO</div>
           <div class="center">Pedido #${orderNumber}</div>
@@ -107,9 +108,13 @@ const ReceiptPage = () => {
       <div className="bg-card w-full max-w-sm rounded-2xl shadow-medium overflow-hidden mb-6">
         {/* Receipt header */}
         <div className="bg-primary px-5 py-4 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center">
-            <Leaf className="w-4 h-4 text-primary-foreground" />
-          </div>
+          {storeBanner ? (
+            <img src={storeBanner} alt={storeName} className="h-10 max-w-[80px] w-auto object-contain rounded bg-primary-foreground/10 p-0.5" />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center">
+              <Leaf className="w-4 h-4 text-primary-foreground" />
+            </div>
+          )}
           <div>
             <p className="font-display text-sm font-bold text-primary-foreground">
               {storeName}
