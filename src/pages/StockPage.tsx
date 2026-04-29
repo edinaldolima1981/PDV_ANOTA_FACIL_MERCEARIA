@@ -42,6 +42,7 @@ const StockPage = () => {
   const [newStock, setNewStock] = useState("");
   const [newUnit, setNewUnit] = useState<string>("un");
   const [newCategory, setNewCategory] = useState("");
+  const [newSaleMode, setNewSaleMode] = useState<SaleMode>("unit");
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -58,6 +59,24 @@ const StockPage = () => {
     { id: "out", label: "Esgotado" },
   ];
 
+  // Quando o modo de venda muda, sugerir uma unidade compatível
+  const suggestUnit = (mode: SaleMode, currentUnit: string): string => {
+    const isCurrentWeight = WEIGHT_UNIT_IDS.includes(currentUnit);
+    if (mode === "weight" && !isCurrentWeight) return "kg";
+    if (mode === "unit" && isCurrentWeight) return "un";
+    return currentUnit;
+  };
+
+  const handleNewSaleModeChange = (mode: SaleMode) => {
+    setNewSaleMode(mode);
+    setNewUnit((cur) => suggestUnit(mode, cur));
+  };
+
+  const handleEditSaleModeChange = (mode: SaleMode) => {
+    setEditSaleMode(mode);
+    setEditUnit((cur) => suggestUnit(mode, cur));
+  };
+
   const openEdit = (product: Product) => {
     setEditingProduct(product);
     setEditStock(String(product.stock));
@@ -66,6 +85,8 @@ const StockPage = () => {
     setEditImage(product.image || "");
     setEditUnit(product.unit);
     setEditCategory(product.category);
+    // Inferir saleMode se o produto antigo não tiver
+    setEditSaleMode(product.saleMode || (computeSellsByWeight(product) ? "weight" : "unit"));
   };
 
   const handleSave = () => {
@@ -77,6 +98,7 @@ const StockPage = () => {
       image: editImage || undefined,
       unit: editUnit,
       category: editCategory,
+      saleMode: editSaleMode,
     });
     toast.success("Produto atualizado!");
     setEditingProduct(null);
@@ -96,9 +118,10 @@ const StockPage = () => {
       stock: parseInt(newStock) || 0,
       unit: newUnit,
       category: newCategory || (categories[1]?.id || ""),
+      saleMode: newSaleMode,
     });
     toast.success("Produto cadastrado!");
-    setNewName(""); setNewPrice(""); setNewStock(""); setNewUnit("un"); setNewCategory("");
+    setNewName(""); setNewPrice(""); setNewStock(""); setNewUnit("un"); setNewCategory(""); setNewSaleMode("unit");
     setShowAddModal(false);
   };
 
