@@ -101,9 +101,16 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     return unit?.short || UNIT_SHORT[id] || id;
   }, [units]);
 
+  const isWeightUnit = useCallback((id: string) => {
+    const unit = units.find((u) => u.id === id);
+    if (unit?.isWeight) return true;
+    // Fallback para unidades conhecidas que sejam por peso/medida
+    return ["kg", "g", "L", "mL", "ml"].includes(id);
+  }, [units]);
+
   return (
     <ProductContext.Provider
-      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort }}
+      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort, isWeightUnit }}
     >
       {children}
     </ProductContext.Provider>
