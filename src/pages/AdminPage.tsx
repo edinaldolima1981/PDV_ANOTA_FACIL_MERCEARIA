@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag, Bell, UtensilsCrossed, Wine } from "lucide-react";
+import { Store, Users, Shield, LogOut, ChevronRight, X, Plus, Trash2, Edit2, QrCode, Tag, Bell, UtensilsCrossed, Wine, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomers } from "@/contexts/CustomerContext";
 import { useStore, PIX_TYPE_LABELS } from "@/contexts/StoreContext";
 import PosLayout from "@/components/pdv/PosLayout";
+import StoreBanner from "@/components/pdv/StoreBanner";
 import AdminAuthModal from "@/components/pdv/AdminAuthModal";
 import CategoryManagerModal from "@/components/pdv/CategoryManagerModal";
 import { ReminderSettingsModal } from "@/components/pdv/BillingReminders";
+import { toast } from "sonner";
 
 interface Employee {
   id: string;
@@ -96,9 +98,12 @@ const AdminPage = () => {
   return (
     <PosLayout>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-card border-b border-border px-5 py-4 flex-shrink-0">
-          <h1 className="font-display text-lg font-bold text-foreground">Administração</h1>
-          <p className="text-xs text-muted-foreground font-body">Configurações do sistema</p>
+        <header className="bg-card border-b border-border px-5 py-4 flex items-center gap-3 flex-shrink-0">
+          <StoreBanner size="sm" />
+          <div>
+            <h1 className="font-display text-lg font-bold text-foreground">Administração</h1>
+            <p className="text-xs text-muted-foreground font-body">Configurações do sistema</p>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-5 pb-24 md:pb-5 space-y-3">
