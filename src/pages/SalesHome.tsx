@@ -8,13 +8,15 @@ import PosLayout from "@/components/pdv/PosLayout";
 import CategoryBar from "@/components/pdv/CategoryBar";
 import ProductCard from "@/components/pdv/ProductCard";
 import CartPanel from "@/components/pdv/CartPanel";
+import WeightModal from "@/components/pdv/WeightModal";
 import { toast } from "sonner";
 
 const SalesHome = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("todos");
+  const [weightProduct, setWeightProduct] = useState<Product | null>(null);
   const { addItem, totalItems, totalPrice } = useCart();
-  const { products } = useProducts();
+  const { products, isWeightUnit } = useProducts();
   const navigate = useNavigate();
 
   const filteredProducts = products.filter((p) => {
@@ -63,8 +65,12 @@ const SalesHome = () => {
                 key={product.id}
                 product={product}
                 onAdd={(p) => {
-                  addItem(p, 1);
-                  toast.success(`${p.name} adicionado ao carrinho`);
+                  if (isWeightUnit(p.unit)) {
+                    setWeightProduct(p);
+                  } else {
+                    addItem(p, 1);
+                    toast.success(`${p.name} adicionado ao carrinho`);
+                  }
                 }}
               />
             ))}
@@ -92,6 +98,17 @@ const SalesHome = () => {
         )}
       </main>
       <CartPanel />
+      {weightProduct && (
+        <WeightModal
+          product={weightProduct}
+          onClose={() => setWeightProduct(null)}
+          onConfirm={(weight) => {
+            addItem(weightProduct, weight);
+            toast.success(`${weightProduct.name} adicionado (${weight.toFixed(3).replace(".", ",")})`);
+            setWeightProduct(null);
+          }}
+        />
+      )}
     </PosLayout>
   );
 };

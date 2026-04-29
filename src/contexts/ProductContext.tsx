@@ -6,12 +6,16 @@ export interface CustomUnit {
   id: string;
   label: string;
   short: string;
+  /** Indica que esta unidade é vendida por peso/medida fracionada (ex.: kg, g, L). */
+  isWeight?: boolean;
 }
 
 const DEFAULT_UNITS: CustomUnit[] = [
   { id: "un", label: "Unidade", short: "un" },
-  { id: "kg", label: "Quilograma", short: "kg" },
-  { id: "L", label: "Litro", short: "L" },
+  { id: "kg", label: "Quilograma", short: "kg", isWeight: true },
+  { id: "g", label: "Grama", short: "g", isWeight: true },
+  { id: "L", label: "Litro", short: "L", isWeight: true },
+  { id: "mL", label: "Mililitro", short: "mL", isWeight: true },
   { id: "m", label: "Metro", short: "m" },
   { id: "m2", label: "Metro²", short: "m²" },
   { id: "peca", label: "Peça", short: "pç" },
@@ -44,6 +48,7 @@ interface ProductContextType {
   addUnit: (unit: Omit<CustomUnit, "id">) => void;
   deleteUnit: (id: string) => void;
   getUnitShort: (id: string) => string;
+  isWeightUnit: (id: string) => boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -96,9 +101,16 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     return unit?.short || UNIT_SHORT[id] || id;
   }, [units]);
 
+  const isWeightUnit = useCallback((id: string) => {
+    const unit = units.find((u) => u.id === id);
+    if (unit?.isWeight) return true;
+    // Fallback para unidades conhecidas que sejam por peso/medida
+    return ["kg", "g", "L", "mL", "ml"].includes(id);
+  }, [units]);
+
   return (
     <ProductContext.Provider
-      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort }}
+      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort, isWeightUnit }}
     >
       {children}
     </ProductContext.Provider>

@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useTables, type Table } from "@/contexts/TableContext";
 import { useProducts } from "@/contexts/ProductContext";
 import { useStore } from "@/contexts/StoreContext";
-import { X, Plus, Minus, Trash2, Printer, SplitSquareHorizontal, Search, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { X, Plus, Minus, Trash2, Printer, SplitSquareHorizontal, Search, ChevronLeft, CheckCircle2, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import WeightModal from "@/components/pdv/WeightModal";
+import type { Product } from "@/data/products";
 
 interface TableOrderPanelProps {
   table: Table;
@@ -13,7 +15,7 @@ interface TableOrderPanelProps {
 
 const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   const { addOrder, removeOrder, updateOrderQuantity, closeTable, openTable, reserveTable, markAllPrinted, getTableTotal, splitBill } = useTables();
-  const { products } = useProducts();
+  const { products, isWeightUnit, getUnitShort } = useProducts();
   const store = useStore();
   const [showProducts, setShowProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +23,7 @@ const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   const [splitParts, setSplitParts] = useState(2);
   const [customerName, setCustomerName] = useState(table.customerName || "");
   const [showReserve, setShowReserve] = useState(false);
+  const [weightProduct, setWeightProduct] = useState<Product | null>(null);
 
   const fmt = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
   const total = getTableTotal(table.id);
@@ -31,11 +34,25 @@ const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   );
 
   const handleAddProduct = (product: typeof products[0]) => {
+    if (isWeightUnit(product.unit)) {
+      setWeightProduct(product);
+      return;
+    }
     addOrder(table.id, product, 1);
     if (table.status === "free") {
       openTable(table.id, customerName || undefined);
     }
     toast({ title: `${product.name} adicionado à ${table.label}` });
+  };
+
+  const confirmWeightAdd = (weight: number) => {
+    if (!weightProduct) return;
+    addOrder(table.id, weightProduct, weight);
+    if (table.status === "free") {
+      openTable(table.id, customerName || undefined);
+    }
+    toast({ title: `${weightProduct.name} (${weight.toFixed(3).replace(".", ",")} ${getUnitShort(weightProduct.unit)}) adicionado` });
+    setWeightProduct(null);
   };
 
   const handleCloseTable = () => {
@@ -262,8 +279,8 @@ ${store.pixKey ? `\nPix: ${store.pixKeyFormatted}` : ""}
                     <p className="text-sm font-medium text-foreground font-body truncate">{p.name}</p>
                     <p className="text-xs text-muted-foreground font-body">{p.category}</p>
                   </div>
-                  <span className="text-sm font-bold text-foreground font-body">{fmt(p.price)}</span>
-                  <Plus className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-bold text-foreground font-body">{fmt(p.price)}<span className="text-[10px] font-normal text-muted-foreground ml-0.5">/{getUnitShort(p.unit)}</span></span>
+                  {isWeightUnit(p.unit) ? <Scale className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
                 </button>
               ))}
             </div>
@@ -313,6 +330,13 @@ ${store.pixKey ? `\nPix: ${store.pixKeyFormatted}` : ""}
           )}
         </div>
       </div>
+      {weightProduct && (
+        <WeightModal
+          product={weightProduct}
+          onClose={() => setWeightProduct(null)}
+          onConfirm={confirmWeightAdd}
+        />
+      )}
     </div>
   );
 };

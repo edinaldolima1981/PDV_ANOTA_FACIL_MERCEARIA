@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart, Scale } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/contexts/ProductContext";
 import { Button } from "@/components/ui/button";
+import WeightModal from "@/components/pdv/WeightModal";
+import type { Product } from "@/data/products";
 
 const CartPage = () => {
   const { items, updateQuantity, removeItem, totalPrice, totalItems } = useCart();
-  const { getUnitShort } = useProducts();
+  const { getUnitShort, isWeightUnit } = useProducts();
   const navigate = useNavigate();
+  const [editing, setEditing] = useState<{ product: Product; quantity: number } | null>(null);
 
   if (items.length === 0) {
     return (
@@ -52,8 +56,10 @@ const CartPage = () => {
       <main className="flex-1 px-4 pt-4 space-y-3">
         {items.map(({ product, quantity }) => {
           const unitLabel = getUnitShort(product.unit);
-          const step = product.unit === "kg" ? 0.1 : 1;
+          const isWeight = isWeightUnit(product.unit);
+          const step = isWeight ? 0.1 : 1;
           const subtotal = product.price * quantity;
+          const qtyDisplay = isWeight ? quantity.toFixed(3).replace(".", ",") : String(quantity);
 
           return (
             <div
@@ -93,21 +99,33 @@ const CartPage = () => {
                     onClick={() =>
                       updateQuantity(
                         product.id,
-                        Math.round((quantity - step) * 10) / 10
+                        Math.round((quantity - step) * 1000) / 1000
                       )
                     }
                     className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center active:scale-90 transition-all"
                   >
                     <Minus className="w-3.5 h-3.5 text-foreground" />
                   </button>
-                  <span className="text-sm font-semibold text-foreground font-body min-w-[40px] text-center">
-                    {product.unit === "kg" ? quantity.toFixed(1) : quantity} {unitLabel}
-                  </span>
+                  {isWeight ? (
+                    <button
+                      onClick={() => setEditing({ product, quantity })}
+                      className="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-secondary hover:bg-muted transition-colors"
+                    >
+                      <Scale className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-sm font-semibold text-foreground font-body">
+                        {qtyDisplay} {unitLabel}
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="text-sm font-semibold text-foreground font-body min-w-[40px] text-center">
+                      {qtyDisplay} {unitLabel}
+                    </span>
+                  )}
                   <button
                     onClick={() =>
                       updateQuantity(
                         product.id,
-                        Math.round((quantity + step) * 10) / 10
+                        Math.round((quantity + step) * 1000) / 1000
                       )
                     }
                     className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center active:scale-90 transition-all"
@@ -153,6 +171,18 @@ const CartPage = () => {
           Escolher pagamento
         </Button>
       </div>
+      {editing && (
+        <WeightModal
+          product={editing.product}
+          initialWeight={editing.quantity}
+          confirmLabel="Atualizar"
+          onClose={() => setEditing(null)}
+          onConfirm={(w) => {
+            updateQuantity(editing.product.id, w);
+            setEditing(null);
+          }}
+        />
+      )}
     </div>
   );
 };
