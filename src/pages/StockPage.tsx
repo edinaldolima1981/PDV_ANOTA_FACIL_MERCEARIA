@@ -29,6 +29,7 @@ const StockPage = () => {
   const [editImage, setEditImage] = useState("");
   const [editUnit, setEditUnit] = useState<string>("un");
   const [editCategory, setEditCategory] = useState("");
+  const [editSaleMode, setEditSaleMode] = useState<SaleMode>("unit");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNewUnitForm, setShowNewUnitForm] = useState(false);
