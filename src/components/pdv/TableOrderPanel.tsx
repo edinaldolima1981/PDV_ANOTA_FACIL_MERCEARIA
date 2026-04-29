@@ -280,7 +280,7 @@ ${store.pixKey ? `\nPix: ${store.pixKeyFormatted}` : ""}
                     <p className="text-xs text-muted-foreground font-body">{p.category}</p>
                   </div>
                   <span className="text-sm font-bold text-foreground font-body">{fmt(p.price)}<span className="text-[10px] font-normal text-muted-foreground ml-0.5">/{getUnitShort(p.unit)}</span></span>
-                  {isWeightUnit(p.unit) ? <Scale className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
+                  {sellsByWeight(p) ? <Scale className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
                 </button>
               ))}
             </div>
