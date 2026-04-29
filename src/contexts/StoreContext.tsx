@@ -12,11 +12,13 @@ interface StoreSettings {
   pixKeyType: PixKeyType;
   moduleRestaurante: boolean;
   moduleBar: boolean;
+  storeBanner: string; // data URL (base64) or empty string
 }
 
 interface StoreContextType extends StoreSettings {
   updateStore: (data: Partial<StoreSettings>) => void;
   setPixKey: (key: string) => void;
+  setStoreBanner: (banner: string) => void;
   pixKeyFormatted: string;
 }
 
