@@ -171,6 +171,18 @@ const CartPage = () => {
           Escolher pagamento
         </Button>
       </div>
+      {editing && (
+        <WeightModal
+          product={editing.product}
+          initialWeight={editing.quantity}
+          confirmLabel="Atualizar"
+          onClose={() => setEditing(null)}
+          onConfirm={(w) => {
+            updateQuantity(editing.product.id, w);
+            setEditing(null);
+          }}
+        />
+      )}
     </div>
   );
 };
