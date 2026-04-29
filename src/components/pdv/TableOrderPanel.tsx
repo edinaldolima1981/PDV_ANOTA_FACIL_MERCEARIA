@@ -34,11 +34,25 @@ const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   );
 
   const handleAddProduct = (product: typeof products[0]) => {
+    if (isWeightUnit(product.unit)) {
+      setWeightProduct(product);
+      return;
+    }
     addOrder(table.id, product, 1);
     if (table.status === "free") {
       openTable(table.id, customerName || undefined);
     }
     toast({ title: `${product.name} adicionado à ${table.label}` });
+  };
+
+  const confirmWeightAdd = (weight: number) => {
+    if (!weightProduct) return;
+    addOrder(table.id, weightProduct, weight);
+    if (table.status === "free") {
+      openTable(table.id, customerName || undefined);
+    }
+    toast({ title: `${weightProduct.name} (${weight.toFixed(3).replace(".", ",")} ${getUnitShort(weightProduct.unit)}) adicionado` });
+    setWeightProduct(null);
   };
 
   const handleCloseTable = () => {
