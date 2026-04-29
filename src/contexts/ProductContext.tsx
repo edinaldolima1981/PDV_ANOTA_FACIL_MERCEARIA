@@ -118,9 +118,14 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     return ["kg", "g", "L", "mL", "ml"].includes(id);
   }, [units]);
 
+  const sellsByWeightCb = useCallback(
+    (product: Product) => sellsByWeight(product, isWeightUnit),
+    [isWeightUnit]
+  );
+
   return (
     <ProductContext.Provider
-      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort, isWeightUnit }}
+      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort, isWeightUnit, sellsByWeight: sellsByWeightCb }}
     >
       {children}
     </ProductContext.Provider>
