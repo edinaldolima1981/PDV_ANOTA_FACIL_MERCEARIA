@@ -2,6 +2,15 @@ import { useState, createContext, useContext, useCallback, type ReactNode } from
 import type { Product, Category } from "@/data/products";
 import { MOCK_PRODUCTS, CATEGORIES as DEFAULT_CATEGORIES } from "@/data/products";
 
+/** Helper centralizado: decide se um produto é vendido por peso/medida. */
+export const sellsByWeight = (product: Product, isWeightUnitFn?: (id: string) => boolean) => {
+  if (product.saleMode === "weight") return true;
+  if (product.saleMode === "unit") return false;
+  // Fallback (produtos antigos sem saleMode): infere pela unidade
+  if (isWeightUnitFn) return isWeightUnitFn(product.unit);
+  return ["kg", "g", "L", "mL", "ml"].includes(product.unit);
+};
+
 export interface CustomUnit {
   id: string;
   label: string;
@@ -49,6 +58,7 @@ interface ProductContextType {
   deleteUnit: (id: string) => void;
   getUnitShort: (id: string) => string;
   isWeightUnit: (id: string) => boolean;
+  sellsByWeight: (product: Product) => boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -108,9 +118,14 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     return ["kg", "g", "L", "mL", "ml"].includes(id);
   }, [units]);
 
+  const sellsByWeightCb = useCallback(
+    (product: Product) => sellsByWeight(product, isWeightUnit),
+    [isWeightUnit]
+  );
+
   return (
     <ProductContext.Provider
-      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort, isWeightUnit }}
+      value={{ products, categories, units, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addUnit, deleteUnit, getUnitShort, isWeightUnit, sellsByWeight: sellsByWeightCb }}
     >
       {children}
     </ProductContext.Provider>

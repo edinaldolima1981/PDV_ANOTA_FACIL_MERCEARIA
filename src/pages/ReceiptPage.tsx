@@ -11,9 +11,9 @@ import { toast } from "sonner";
 const ReceiptPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { storeName, pixKey, pixKeyType, pixKeyFormatted } = useStore();
-  const { getUnitShort, isWeightUnit } = useProducts();
-  const fmtQty = (unit: string, qty: number) =>
-    isWeightUnit(unit) ? qty.toFixed(3).replace(".", ",") : String(qty);
+  const { getUnitShort, sellsByWeight } = useProducts();
+  const fmtQty = (product: any, qty: number) =>
+    sellsByWeight(product) ? qty.toFixed(3).replace(".", ",") : String(qty);
   const navigate = useNavigate();
   const location = useLocation();
   const paymentMethod = (location.state as any)?.paymentMethod || "";
@@ -31,7 +31,7 @@ const ReceiptPage = () => {
       if (!printWindow) return;
       const itemsHtml = items.map(({ product, quantity }) => {
         const unitLabel = getUnitShort(product.unit);
-        const qty = fmtQty(product.unit, quantity);
+        const qty = fmtQty(product, quantity);
         return `<div class="row"><span>${product.name} x${qty} ${unitLabel}</span><span>${fmt(product.price * quantity)}</span></div>`;
       }).join("");
       printWindow.document.write(`
@@ -67,7 +67,7 @@ const ReceiptPage = () => {
     try {
       const itemsList = items.map(({ product, quantity }) => {
         const unitLabel = getUnitShort(product.unit);
-        const qty = fmtQty(product.unit, quantity);
+        const qty = fmtQty(product, quantity);
         return `• ${product.name} x${qty} ${unitLabel} - ${fmt(product.price * quantity)}`;
       }).join("\n");
       const msg = encodeURIComponent(
@@ -129,7 +129,7 @@ const ReceiptPage = () => {
                 <span className="text-foreground">
                   {product.name}{" "}
                   <span className="text-muted-foreground">
-                    x{fmtQty(product.unit, quantity)} {unitLabel}
+                    x{fmtQty(product, quantity)} {unitLabel}
                   </span>
                 </span>
                 <span className="font-semibold text-foreground">

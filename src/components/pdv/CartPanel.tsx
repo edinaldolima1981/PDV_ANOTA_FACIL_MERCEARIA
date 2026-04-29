@@ -9,7 +9,7 @@ import type { Product } from "@/data/products";
 
 const CartPanel = () => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
-  const { getUnitShort, isWeightUnit } = useProducts();
+  const { getUnitShort, sellsByWeight } = useProducts();
   const navigate = useNavigate();
   const [editing, setEditing] = useState<{ product: Product; quantity: number } | null>(null);
 
@@ -30,7 +30,7 @@ const CartPanel = () => {
         ) : (
           items.map(({ product, quantity }) => {
             const unitLabel = getUnitShort(product.unit);
-            const isWeight = isWeightUnit(product.unit);
+            const isWeight = sellsByWeight(product);
             const step = isWeight ? 0.1 : 1;
             const subtotal = product.price * quantity;
             const qtyDisplay = isWeight ? quantity.toFixed(3).replace(".", ",") : String(quantity);

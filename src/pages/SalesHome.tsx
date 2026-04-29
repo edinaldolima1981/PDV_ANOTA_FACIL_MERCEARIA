@@ -16,7 +16,7 @@ const SalesHome = () => {
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const [weightProduct, setWeightProduct] = useState<Product | null>(null);
   const { addItem, totalItems, totalPrice } = useCart();
-  const { products, isWeightUnit } = useProducts();
+  const { products, sellsByWeight } = useProducts();
   const navigate = useNavigate();
 
   const filteredProducts = products.filter((p) => {
@@ -65,7 +65,7 @@ const SalesHome = () => {
                 key={product.id}
                 product={product}
                 onAdd={(p) => {
-                  if (isWeightUnit(p.unit)) {
+                  if (sellsByWeight(p)) {
                     setWeightProduct(p);
                   } else {
                     addItem(p, 1);

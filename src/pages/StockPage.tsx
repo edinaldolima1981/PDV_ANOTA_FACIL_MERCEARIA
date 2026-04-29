@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save } from "lucide-react";
-import { useProducts } from "@/contexts/ProductContext";
-import type { Product } from "@/data/products";
+import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save, Scale } from "lucide-react";
+import { useProducts, sellsByWeight as computeSellsByWeight } from "@/contexts/ProductContext";
+import type { Product, SaleMode } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import PosLayout from "@/components/pdv/PosLayout";
 import { toast } from "sonner";
+
+// Sugestões de unidades baseadas no modo de venda
+const WEIGHT_UNIT_IDS = ["kg", "g", "L", "mL"];
+const UNIT_UNIT_IDS_DEFAULT = ["un", "peca", "par", "duzia", "cx", "saco"];
 
 type StockFilter = "all" | "normal" | "low" | "out";
 
@@ -13,6 +17,54 @@ const getStockStatus = (stock: number): { label: string; color: string; bg: stri
   if (stock <= 10) return { label: "Baixo", color: "text-warning", bg: "bg-warning/10" };
   return { label: "Normal", color: "text-success", bg: "bg-success/10" };
 };
+
+interface SaleModeSelectorProps {
+  value: SaleMode;
+  onChange: (m: SaleMode) => void;
+}
+
+const SaleModeSelector = ({ value, onChange }: SaleModeSelectorProps) => (
+  <div>
+    <label className="text-xs text-muted-foreground font-body mb-1.5 block">Como é vendido?</label>
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => onChange("unit")}
+        className={`p-3 rounded-xl border-2 transition-all text-left ${
+          value === "unit"
+            ? "border-primary bg-primary/5"
+            : "border-border bg-background hover:border-primary/40"
+        }`}
+      >
+        <div className="flex items-center gap-1.5 mb-1">
+          <Package className="w-4 h-4 text-foreground" />
+          <span className="text-sm font-bold text-foreground font-body">Por unidade</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground font-body leading-tight">
+          Vai direto ao carrinho. Ex.: refrigerante, pão, sabonete.
+        </p>
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("weight")}
+        className={`p-3 rounded-xl border-2 transition-all text-left ${
+          value === "weight"
+            ? "border-primary bg-primary/5"
+            : "border-border bg-background hover:border-primary/40"
+        }`}
+      >
+        <div className="flex items-center gap-1.5 mb-1">
+          <Scale className="w-4 h-4 text-foreground" />
+          <span className="text-sm font-bold text-foreground font-body">Por peso/medida</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground font-body leading-tight">
+          Pede o peso na hora. Ex.: carnes, frutas a granel, queijos.
+        </p>
+      </button>
+    </div>
+  </div>
+);
+
 
 const StockPage = () => {
   const { products, categories, units, updateProduct, deleteProduct, addProduct, addUnit, getUnitShort } = useProducts();
@@ -25,6 +77,7 @@ const StockPage = () => {
   const [editImage, setEditImage] = useState("");
   const [editUnit, setEditUnit] = useState<string>("un");
   const [editCategory, setEditCategory] = useState("");
+  const [editSaleMode, setEditSaleMode] = useState<SaleMode>("unit");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNewUnitForm, setShowNewUnitForm] = useState(false);
@@ -37,6 +90,7 @@ const StockPage = () => {
   const [newStock, setNewStock] = useState("");
   const [newUnit, setNewUnit] = useState<string>("un");
   const [newCategory, setNewCategory] = useState("");
+  const [newSaleMode, setNewSaleMode] = useState<SaleMode>("unit");
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -53,6 +107,24 @@ const StockPage = () => {
     { id: "out", label: "Esgotado" },
   ];
 
+  // Quando o modo de venda muda, sugerir uma unidade compatível
+  const suggestUnit = (mode: SaleMode, currentUnit: string): string => {
+    const isCurrentWeight = WEIGHT_UNIT_IDS.includes(currentUnit);
+    if (mode === "weight" && !isCurrentWeight) return "kg";
+    if (mode === "unit" && isCurrentWeight) return "un";
+    return currentUnit;
+  };
+
+  const handleNewSaleModeChange = (mode: SaleMode) => {
+    setNewSaleMode(mode);
+    setNewUnit((cur) => suggestUnit(mode, cur));
+  };
+
+  const handleEditSaleModeChange = (mode: SaleMode) => {
+    setEditSaleMode(mode);
+    setEditUnit((cur) => suggestUnit(mode, cur));
+  };
+
   const openEdit = (product: Product) => {
     setEditingProduct(product);
     setEditStock(String(product.stock));
@@ -61,6 +133,8 @@ const StockPage = () => {
     setEditImage(product.image || "");
     setEditUnit(product.unit);
     setEditCategory(product.category);
+    // Inferir saleMode se o produto antigo não tiver
+    setEditSaleMode(product.saleMode || (computeSellsByWeight(product) ? "weight" : "unit"));
   };
 
   const handleSave = () => {
@@ -72,6 +146,7 @@ const StockPage = () => {
       image: editImage || undefined,
       unit: editUnit,
       category: editCategory,
+      saleMode: editSaleMode,
     });
     toast.success("Produto atualizado!");
     setEditingProduct(null);
@@ -91,9 +166,10 @@ const StockPage = () => {
       stock: parseInt(newStock) || 0,
       unit: newUnit,
       category: newCategory || (categories[1]?.id || ""),
+      saleMode: newSaleMode,
     });
     toast.success("Produto cadastrado!");
-    setNewName(""); setNewPrice(""); setNewStock(""); setNewUnit("un"); setNewCategory("");
+    setNewName(""); setNewPrice(""); setNewStock(""); setNewUnit("un"); setNewCategory(""); setNewSaleMode("unit");
     setShowAddModal(false);
   };
 
@@ -239,6 +315,7 @@ const StockPage = () => {
                 <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome do produto"
                   className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
+              <SaleModeSelector value={newSaleMode} onChange={handleNewSaleModeChange} />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-body mb-1 block">Preço (R$)</label>
@@ -320,6 +397,7 @@ const StockPage = () => {
                 <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
               </div>
+              <SaleModeSelector value={editSaleMode} onChange={handleEditSaleModeChange} />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground font-body mb-1 block">Preço (R$)</label>

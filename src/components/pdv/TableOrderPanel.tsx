@@ -15,7 +15,7 @@ interface TableOrderPanelProps {
 
 const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   const { addOrder, removeOrder, updateOrderQuantity, closeTable, openTable, reserveTable, markAllPrinted, getTableTotal, splitBill } = useTables();
-  const { products, isWeightUnit, getUnitShort } = useProducts();
+  const { products, sellsByWeight, getUnitShort } = useProducts();
   const store = useStore();
   const [showProducts, setShowProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,7 +34,7 @@ const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   );
 
   const handleAddProduct = (product: typeof products[0]) => {
-    if (isWeightUnit(product.unit)) {
+    if (sellsByWeight(product)) {
       setWeightProduct(product);
       return;
     }
@@ -280,7 +280,7 @@ ${store.pixKey ? `\nPix: ${store.pixKeyFormatted}` : ""}
                     <p className="text-xs text-muted-foreground font-body">{p.category}</p>
                   </div>
                   <span className="text-sm font-bold text-foreground font-body">{fmt(p.price)}<span className="text-[10px] font-normal text-muted-foreground ml-0.5">/{getUnitShort(p.unit)}</span></span>
-                  {isWeightUnit(p.unit) ? <Scale className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
+                  {sellsByWeight(p) ? <Scale className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
                 </button>
               ))}
             </div>
