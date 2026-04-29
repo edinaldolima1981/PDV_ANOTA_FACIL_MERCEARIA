@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save } from "lucide-react";
-import { useProducts } from "@/contexts/ProductContext";
-import type { Product } from "@/data/products";
+import { Search, Package, Plus, Edit2, Trash2, ImagePlus, X, Save, Scale } from "lucide-react";
+import { useProducts, sellsByWeight as computeSellsByWeight } from "@/contexts/ProductContext";
+import type { Product, SaleMode } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import PosLayout from "@/components/pdv/PosLayout";
 import { toast } from "sonner";
+
+// Sugestões de unidades baseadas no modo de venda
+const WEIGHT_UNIT_IDS = ["kg", "g", "L", "mL"];
+const UNIT_UNIT_IDS_DEFAULT = ["un", "peca", "par", "duzia", "cx", "saco"];
 
 type StockFilter = "all" | "normal" | "low" | "out";
 
