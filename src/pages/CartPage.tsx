@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart, Scale } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/contexts/ProductContext";
 import { Button } from "@/components/ui/button";
+import WeightModal from "@/components/pdv/WeightModal";
+import type { Product } from "@/data/products";
 
 const CartPage = () => {
   const { items, updateQuantity, removeItem, totalPrice, totalItems } = useCart();
-  const { getUnitShort } = useProducts();
+  const { getUnitShort, isWeightUnit } = useProducts();
   const navigate = useNavigate();
+  const [editing, setEditing] = useState<{ product: Product; quantity: number } | null>(null);
 
   if (items.length === 0) {
     return (
