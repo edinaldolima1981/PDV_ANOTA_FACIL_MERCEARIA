@@ -1,62 +1,170 @@
-## Banner da loja no cabeçalho
 
-Adicionar suporte a um **banner/logo personalizado da loja** que aparece no cabeçalho do PDV (e demais telas), configurável pelo lojista nas Configurações. Se nenhum banner for enviado, o cabeçalho continua exatamente como está hoje (sem atrapalhar o layout atual).
+# Profissionalização do Módulo Bar
 
-### O que o usuário verá
+Objetivo: transformar o Bar atual (mesas + pedidos básicos) em um sistema profissional com fluxos reais de operação de bar — comandas individuais, garçons, pagamento integrado, transferências, taxa de serviço, couvert e relatórios específicos.
 
-1. **Em Admin → Configurações da Loja**
-   - Novo campo "Banner / Logo da Loja"
-   - Botão "Enviar imagem" (aceita PNG, JPG, WEBP)
-   - Preview da imagem atual com botão "Remover"
-   - Dica de tamanho recomendado (ex: 600x120px, até 1MB)
+---
 
-2. **No cabeçalho das telas (PDV, Restaurante, Bar, Estoque, etc.)**
-   - Se houver banner: exibe a imagem à esquerda do título, com altura limitada (~40px no desktop, ~32px no mobile) para não aumentar o cabeçalho
-   - Se não houver banner: cabeçalho continua idêntico ao atual
-   - Mantém responsividade — em telas pequenas o banner reduz proporcionalmente
+## 1. Comandas individuais por mesa (multi-comanda)
 
-3. **Tela de Login (PIN)**
-   - Se houver banner, substitui o ícone genérico de loja pelo banner da loja
-   - Mantém o nome da loja abaixo
+Hoje cada mesa tem **um único pedido coletivo**. No bar real, cada cliente tem sua própria comanda mesmo sentado na mesma mesa.
 
-4. **Recibo (impressão/WhatsApp)**
-   - Banner aparece no topo do recibo, centralizado, acima do nome da loja
+- Cada mesa pode ter **N comandas** (ex: "Comanda 01 — João", "Comanda 02 — Maria")
+- Adicionar item: escolhe a comanda destino (ou "mesa toda")
+- Ver totais por comanda + total geral da mesa
+- Fechar comandas individualmente (cliente vai embora antes dos outros)
+- Cada comanda tem número sequencial impresso (útil para identificação física com cartão/pulseira)
 
-### Detalhes técnicos
+## 2. Garçom responsável
 
-- **StoreContext** (`src/contexts/StoreContext.tsx`)
-  - Adicionar campo `storeBanner: string` (data URL base64) ao `StoreSettings`
-  - Função `setStoreBanner(file: File | null)` que converte para base64 e persiste
-  - Persistir junto com as demais configurações da loja
+- Cadastro simples de garçons em Admin (nome + PIN curto)
+- Ao abrir mesa: selecionar garçom responsável
+- Cada pedido registra qual garçom lançou
+- Comissão configurável por garçom (% sobre vendas) — visível no relatório
 
-- **Novo componente** `src/components/pdv/StoreBanner.tsx`
-  - Props: `size?: "sm" | "md" | "lg"`, `className?`
-  - Renderiza `<img>` com `object-contain`, ou `null` se não houver banner
-  - Reutilizado em todos os cabeçalhos
+## 3. Fluxo de pagamento integrado (sem sair do Bar)
 
-- **Sidebar** (`src/components/pdv/Sidebar.tsx`)
-  - Substituir/complementar o título com o `<StoreBanner size="md" />` no topo
-  - Fallback: nome da loja em texto (atual)
+Hoje "Fechar Mesa" só limpa. Vamos integrar com o checkout existente:
 
-- **Cabeçalhos de página** (`SalesHome.tsx`, `RestaurantPage.tsx`, `BarPage.tsx`, `StockPage.tsx`, etc.)
-  - Adicionar `<StoreBanner size="sm" />` à esquerda do título da página (apenas quando existir)
+- Botão **"Pagar"** abre modal de pagamento dentro do painel da mesa
+- Formas: Dinheiro / Pix / Cartão / **Fiado (A Prazo)** — usa `CustomerContext` e regras de crédito existentes
+- Pagamento parcial: "cliente pagou R$ 50, restante na conta"
+- Pagamento dividido por forma (R$ 30 dinheiro + R$ 20 pix)
+- Após pagamento confirmado → mesa fecha e gera recibo (reusa `ReceiptPage`)
+- Venda entra no histórico financeiro normal (Dashboard / Relatórios)
 
-- **AdminPage** (`src/pages/AdminPage.tsx`)
-  - Nova seção dentro de "Configurações da Loja":
-    - Input `<input type="file" accept="image/*">` escondido + botão estilizado
-    - Validação: máx 1MB, formatos PNG/JPG/WEBP
-    - Preview com botão remover
-    - Toast de sucesso/erro
+## 4. Taxa de serviço (10% garçom) e Couvert
 
-- **LoginPin** (`src/pages/LoginPin.tsx`)
-  - Substituir o div com ícone `<Store />` pelo `<StoreBanner size="lg" />` quando existir
+- Toggle por mesa: "Incluir taxa de serviço 10%" (padrão configurável em Admin)
+- **Couvert artístico**: valor fixo por pessoa (configurável), aplicado automaticamente quando a mesa abre
+- Ambos aparecem destacados na conta impressa e no recibo
 
-- **ReceiptPage** (`src/pages/ReceiptPage.tsx`)
-  - Adicionar banner no topo do recibo (centralizado, max-height controlado)
+## 5. Transferências
 
-### Garantias de "não atrapalhar"
+- **Transferir item** entre comandas da mesma mesa
+- **Transferir item** entre mesas (cliente trocou de mesa)
+- **Juntar mesas**: mescla todas as comandas de 2+ mesas em uma só
+- **Dividir mesa**: separa comandas para mesas diferentes
+- Toda transferência logada com hora + garçom
 
-- Sem banner cadastrado → **zero mudança visual** no app
-- Altura máxima fixa por breakpoint → cabeçalho não cresce
-- `object-contain` → preserva proporção sem distorcer
-- Fallback gracioso em todas as telas
+## 6. Status estendidos da mesa
+
+Ampliar de 3 para 5 estados, com cores distintas no `TableMap`:
+
+```text
+Livre        verde
+Ocupada      âmbar
+Aguardando   amarelo  (pediu a conta — sinal pro garçom)
+Reservada    azul
+Suja         cinza    (cliente foi embora, falta limpar)
+```
+
+Botão "Pedir a conta" muda mesa para *Aguardando*; após pagamento vira *Suja*; garçom marca "Limpa" → volta a *Livre*.
+
+## 7. Categorias rápidas e favoritos do bar
+
+- Painel de produtos com **abas/atalhos**: Chopp, Cervejas, Drinks, Destilados, Petiscos, Não-alcoólicos
+- "Favoritos do Bar" (top 12 mais vendidos) como primeira aba
+- Botões grandes (touch-friendly) com preço — 1 toque adiciona à comanda ativa
+
+## 8. Happy Hour
+
+- Configurável em Admin: período (ex: 18h–20h, seg–sex) + desconto (% ou preço fixo) por categoria/produto
+- Indicador visível no header da BarPage quando ativo: "🍻 HAPPY HOUR ATIVO"
+- Preço aplicado automaticamente nos lançamentos durante a janela
+
+## 9. Observações e modificadores rápidos
+
+- Ao adicionar item, abrir mini-modal com:
+  - Observações livres ("sem gelo", "bem gelada")
+  - Tags rápidas pré-definidas (configuráveis): "sem gelo", "com limão", "para viagem", "dose dupla"
+- Tags aparecem na comanda impressa para o bar/cozinha
+
+## 10. Impressão profissional
+
+Separar dois fluxos de impressão:
+
+- **Pedido (KDS-like)**: imprime apenas itens novos, agrupado por destino (Bar / Cozinha) — produto cadastrado define destino
+- **Conta do cliente**: layout caprichado com taxa, couvert, descontos, divisão e Pix
+
+Cada impressão preserva: nº comanda, mesa, garçom, hora.
+
+## 11. Histórico e auditoria da mesa
+
+- Linha do tempo dentro do painel: "20:14 João abriu mesa → 20:18 Maria adicionou Heineken → 20:45 transferiu p/ comanda 02 → 21:30 pagou"
+- Útil para resolver contestações ("não pedi isso")
+
+## 12. Relatório do Bar (nova aba no Dashboard)
+
+- Vendas do dia/semana/mês do módulo Bar
+- Top 10 produtos mais vendidos
+- Faturamento por garçom + comissão calculada
+- Tempo médio de mesa ocupada
+- Ticket médio por mesa / por comanda
+- Horários de pico
+
+---
+
+## Detalhes técnicos
+
+**Modelo de dados (`TableContext`)**
+```text
+Table {
+  ...campos atuais
+  status: 'free'|'occupied'|'awaiting_payment'|'reserved'|'dirty'
+  waiterId?: string
+  serviceFeeEnabled: boolean
+  couvertPerPerson: number
+  comandas: Comanda[]        // substitui orders[] direto
+  history: TableEvent[]
+}
+
+Comanda {
+  id, number, customerName?, openedAt, closedAt?,
+  orders: TableOrder[],
+  payments: Payment[]
+}
+
+TableOrder { ...atuais, waiterId, modifiers: string[], destination: 'bar'|'kitchen' }
+Payment    { method, amount, at, by }
+TableEvent { at, type, description, by }
+```
+
+**Novos contextos / arquivos**
+- `src/contexts/WaiterContext.tsx` — CRUD garçons + comissão
+- `src/contexts/HappyHourContext.tsx` — regras + função `applyHappyHour(product, now)`
+- Migração `TableContext` para `comandas[]` (com fallback de leitura para mesas antigas)
+
+**Novos componentes**
+- `src/components/pdv/ComandaTabs.tsx` — abas de comandas dentro da mesa
+- `src/components/pdv/PaymentModal.tsx` — pagamento integrado (reaproveita lógica de `CheckoutPage`)
+- `src/components/pdv/TransferModal.tsx` — transferir item / juntar / dividir mesa
+- `src/components/pdv/QuickModifiersModal.tsx` — observações + tags rápidas
+- `src/components/pdv/BarFavoritesGrid.tsx` — grid touch de produtos favoritos
+- `src/components/pdv/TableTimeline.tsx` — histórico/auditoria
+- `src/pages/admin/WaitersSection.tsx`, `HappyHourSection.tsx`, `BarSettingsSection.tsx` (couvert padrão, taxa padrão, destinos de impressão)
+
+**Refatorações**
+- `TableOrderPanel.tsx` reescrito em torno de `ComandaTabs`
+- `TableMap.tsx` ganha 2 cores novas + ação rápida "Marcar como limpa"
+- `Product` ganha `printDestination?: 'bar'|'kitchen'` (default 'bar')
+- `Dashboard` ganha aba "Bar" com os relatórios
+
+**Persistência**
+- Tudo via `localStorage` (mantém padrão atual offline-first do projeto)
+- Eventos de auditoria limitados aos últimos 90 dias por mesa para não inchar storage
+
+**Memórias a atualizar após implementação**
+- `mem://features/restaurant-bar-modules` (expandir com comandas, pagamento, transferências)
+- Nova `mem://features/bar-professional` com regras de happy hour, couvert e taxa
+
+---
+
+## Sugestão de ordem de entrega (em fases)
+
+1. **Fase 1 — Base**: comandas múltiplas + status estendidos + transferência simples
+2. **Fase 2 — Operação**: garçons + pagamento integrado + couvert/taxa
+3. **Fase 3 — Vendas**: favoritos do bar + happy hour + modificadores rápidos
+4. **Fase 4 — Gestão**: histórico/auditoria + relatórios do bar
+
+Posso entregar tudo de uma vez ou fase a fase — me diga sua preferência. Algo a remover, adicionar (ex.: integração com totem de autoatendimento, QR code na mesa para o cliente pedir pelo celular) ou ajustar?
