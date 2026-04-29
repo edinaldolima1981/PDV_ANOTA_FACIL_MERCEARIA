@@ -6,12 +6,16 @@ export interface CustomUnit {
   id: string;
   label: string;
   short: string;
+  /** Indica que esta unidade é vendida por peso/medida fracionada (ex.: kg, g, L). */
+  isWeight?: boolean;
 }
 
 const DEFAULT_UNITS: CustomUnit[] = [
   { id: "un", label: "Unidade", short: "un" },
-  { id: "kg", label: "Quilograma", short: "kg" },
-  { id: "L", label: "Litro", short: "L" },
+  { id: "kg", label: "Quilograma", short: "kg", isWeight: true },
+  { id: "g", label: "Grama", short: "g", isWeight: true },
+  { id: "L", label: "Litro", short: "L", isWeight: true },
+  { id: "mL", label: "Mililitro", short: "mL", isWeight: true },
   { id: "m", label: "Metro", short: "m" },
   { id: "m2", label: "Metro²", short: "m²" },
   { id: "peca", label: "Peça", short: "pç" },
