@@ -16,7 +16,7 @@ const SalesHome = () => {
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const [weightProduct, setWeightProduct] = useState<Product | null>(null);
   const { addItem, totalItems, totalPrice } = useCart();
-  const { products, isWeightUnit } = useProducts();
+  const { products, sellsByWeight } = useProducts();
   const navigate = useNavigate();
 
   const filteredProducts = products.filter((p) => {
