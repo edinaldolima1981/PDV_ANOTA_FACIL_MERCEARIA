@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useTables, type Table } from "@/contexts/TableContext";
 import { useProducts } from "@/contexts/ProductContext";
 import { useStore } from "@/contexts/StoreContext";
-import { X, Plus, Minus, Trash2, Printer, SplitSquareHorizontal, Search, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { X, Plus, Minus, Trash2, Printer, SplitSquareHorizontal, Search, ChevronLeft, CheckCircle2, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import WeightModal from "@/components/pdv/WeightModal";
+import type { Product } from "@/data/products";
 
 interface TableOrderPanelProps {
   table: Table;
