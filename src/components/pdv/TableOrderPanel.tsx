@@ -15,7 +15,7 @@ interface TableOrderPanelProps {
 
 const TableOrderPanel = ({ table, onClose }: TableOrderPanelProps) => {
   const { addOrder, removeOrder, updateOrderQuantity, closeTable, openTable, reserveTable, markAllPrinted, getTableTotal, splitBill } = useTables();
-  const { products, isWeightUnit, getUnitShort } = useProducts();
+  const { products, sellsByWeight, getUnitShort } = useProducts();
   const store = useStore();
   const [showProducts, setShowProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
