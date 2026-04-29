@@ -129,7 +129,7 @@ const ReceiptPage = () => {
                 <span className="text-foreground">
                   {product.name}{" "}
                   <span className="text-muted-foreground">
-                    x{product.unit === "kg" ? quantity.toFixed(1) : quantity} {unitLabel}
+                    x{fmtQty(product.unit, quantity)} {unitLabel}
                   </span>
                 </span>
                 <span className="font-semibold text-foreground">
