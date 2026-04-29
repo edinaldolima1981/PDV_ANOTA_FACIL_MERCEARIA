@@ -129,6 +129,18 @@ const CartPanel = () => {
           <ChevronRight className="w-4 h-4 ml-auto" />
         </Button>
       </div>
+      {editing && (
+        <WeightModal
+          product={editing.product}
+          initialWeight={editing.quantity}
+          confirmLabel="Atualizar"
+          onClose={() => setEditing(null)}
+          onConfirm={(w) => {
+            updateQuantity(editing.product.id, w);
+            setEditing(null);
+          }}
+        />
+      )}
     </aside>
   );
 };
