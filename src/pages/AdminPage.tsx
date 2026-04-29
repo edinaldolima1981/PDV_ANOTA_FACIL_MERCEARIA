@@ -179,6 +179,62 @@ const AdminPage = () => {
               </button>
             </div>
             <div className="space-y-3 mb-5">
+              {/* Banner / Logo */}
+              <div className="border border-dashed border-border rounded-xl p-3 bg-background/50">
+                <label className="text-xs font-medium text-muted-foreground font-body block mb-2">
+                  Banner / Logo da Loja
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="w-20 h-20 rounded-lg bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {store.storeBanner ? (
+                      <img src={store.storeBanner} alt="Banner" className="w-full h-full object-contain" />
+                    ) : (
+                      <ImagePlus className="w-6 h-6 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 1024 * 1024) {
+                            toast.error("Imagem muito grande (máx. 1MB)");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            store.setStoreBanner(String(reader.result));
+                            toast.success("Banner atualizado!");
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = "";
+                        }}
+                      />
+                      <span className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium font-body cursor-pointer hover:opacity-90 transition-opacity">
+                        <ImagePlus className="w-3.5 h-3.5" />
+                        {store.storeBanner ? "Trocar imagem" : "Enviar imagem"}
+                      </span>
+                    </label>
+                    {store.storeBanner && (
+                      <button
+                        type="button"
+                        onClick={() => { store.setStoreBanner(""); toast.success("Banner removido"); }}
+                        className="block text-[11px] text-destructive font-body hover:underline"
+                      >
+                        Remover banner
+                      </button>
+                    )}
+                    <p className="text-[10px] text-muted-foreground font-body leading-tight">
+                      PNG, JPG ou WEBP. Recomendado: 600×120px. Máx. 1MB.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="text-xs font-medium text-muted-foreground font-body">Nome da Loja</label>
                 <input value={storeName} onChange={(e) => setStoreName(e.target.value)}
