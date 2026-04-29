@@ -9,6 +9,7 @@ import CategoryBar from "@/components/pdv/CategoryBar";
 import ProductCard from "@/components/pdv/ProductCard";
 import CartPanel from "@/components/pdv/CartPanel";
 import WeightModal from "@/components/pdv/WeightModal";
+import StoreBanner from "@/components/pdv/StoreBanner";
 import { toast } from "sonner";
 
 const SalesHome = () => {
@@ -29,7 +30,8 @@ const SalesHome = () => {
   return (
     <PosLayout>
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-card border-b border-border px-5 py-3 flex items-center gap-4 flex-shrink-0">
+        <header className="bg-card border-b border-border px-5 py-3 flex items-center gap-3 flex-shrink-0">
+          <StoreBanner size="sm" />
           <div className="relative flex-1 max-w-lg">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
