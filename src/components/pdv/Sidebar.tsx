@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Store, ShoppingCart, Package, Users, BarChart3, Settings, LogOut, Receipt, UtensilsCrossed, Wine } from "lucide-react";
+import { Store, ShoppingCart, Package, Users, BarChart3, Settings, LogOut, Receipt } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 
 const Sidebar = () => {
@@ -8,14 +8,12 @@ const Sidebar = () => {
   const store = useStore();
 
   const NAV_ITEMS = [
-    { path: "/home", label: "Vendas", icon: ShoppingCart, show: true },
-    { path: "/stock", label: "Estoque", icon: Package, show: true },
-    { path: "/fiado", label: "Fiado", icon: Users, show: true },
-    { path: "/contas-receber", label: "A Prazo", icon: Receipt, show: true },
-    { path: "/restaurante", label: "Restaurante", icon: UtensilsCrossed, show: store.moduleRestaurante },
-    { path: "/bar", label: "Bar", icon: Wine, show: store.moduleBar },
-    { path: "/dashboard", label: "Relatórios", icon: BarChart3, show: true },
-    { path: "/admin", label: "Config", icon: Settings, show: true },
+    { path: "/home", label: "Vendas", icon: ShoppingCart },
+    { path: "/stock", label: "Estoque", icon: Package },
+    { path: "/fiado", label: "Fiado", icon: Users },
+    { path: "/contas-receber", label: "A Prazo", icon: Receipt },
+    { path: "/dashboard", label: "Relatórios", icon: BarChart3 },
+    { path: "/admin", label: "Config", icon: Settings },
   ];
 
   return (
@@ -33,7 +31,7 @@ const Sidebar = () => {
       </button>
 
       <nav className="flex flex-col gap-1 flex-1">
-        {NAV_ITEMS.filter((i) => i.show).map((item) => {
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
 

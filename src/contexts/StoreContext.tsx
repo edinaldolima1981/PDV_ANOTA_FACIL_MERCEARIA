@@ -10,8 +10,6 @@ interface StoreSettings {
   ownerName: string;
   pixKey: string;
   pixKeyType: PixKeyType;
-  moduleRestaurante: boolean;
-  moduleBar: boolean;
   storeBanner: string; // data URL (base64) or empty string
 }
 
@@ -84,8 +82,6 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     ownerName: "",
     pixKey: "95193258300",
     pixKeyType: "cpf",
-    moduleRestaurante: false,
-    moduleBar: false,
     storeBanner: "",
   });
 
